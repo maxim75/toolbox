@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1"> 
+		<link href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css" rel="stylesheet" type="text/css" />
+		<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+ 
+		<style>
+			/* CSS here */
+			img.test {
+				width: 50px;
+				height: 50px;
+			}
+		</style>
+	</head>
+ 
+	<body>
+		 <input type="file" id="file" name="file" data-bind="event: { change: onFileChange }" />
+
+		 <ul data-bind="foreach: categories">
+		 	<li data-bind="text: $data"></li>
+		 </ul>
+
+		 <table class="table">
+	      <thead>
+	        <tr>
+	          <th>dist</th>
+	          <th>title</th>
+	        </tr>
+	      </thead>
+	      <tbody id="exif-table-body" data-bind="foreach: fileCategoriesSorted">
+	      	<tr>
+	      		<td data-bind="text: category"></td>
+	      		<td data-bind="text: count"></td>
+	      	</tr>
+	      </tbody>
+	    </table>
+		 
+
+		 <table class="table">
+	      <thead>
+	        <tr>
+	          <th>dist</th>
+	          <th>title</th>
+	        </tr>
+	      </thead>
+	      <tbody id="exif-table-body" data-bind="foreach: files">
+	      	<tr>
+	      		<td data-bind="text: dist"></td>
+	      		<td data-bind="text: title"></td>
+	      	</tr>
+	      </tbody>
+	    </table>
+
+		 <table class="table">
+	      <thead>
+	        <tr>
+	          <th>Tag name</th>
+	          <th>Tag value</th>
+	        </tr>
+	      </thead>
+
+	      <tbody id="exif-table-body" data-bind="foreach: tags">
+	      	<tr>
+	      		<td data-bind="text: $data[0]"></td>
+	      		<td data-bind="text: $data[1].value"></td>
+	      		<td data-bind="text: $data[1].description"></td>
+	      	</tr>
+	      </tbody>
+	    </table>
+	</body>
+ 
+	<script src="//cdn.jsdelivr.net/jquery/2.2.1/jquery.min.js"></script>
+	<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+	<script src="//cdn.jsdelivr.net/underscorejs/1.8.2/underscore-min.js"></script>
+	<script src="//cdn.jsdelivr.net/knockout/3.4.0/knockout.js"></script>
+	<script src="//cdn.jsdelivr.net/knockout.validation/1.0.2/knockout.validation.min.js"></script>
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+	<script src="jslib/ExifReader.js"></script>
+	<script>
+
+		var getNearbyCommonsPhotos = function(lat, lng, radius) {
+
+			var dfd = $.Deferred();
+
+			var params = { 
+				format: "json",
+				action: "query",
+				list: "geosearch",
+				gsprimary: "all",
+				gsnamespace: "6",
+				gsradius: radius,
+				gscoord: lat + "|" + lng,
+				"gslimit": 100
+				//origin: window.location.protocol + "//" + window.location.hostname + ":" + window.location.port
+			};
+
+			var url = "https://crossorigin.me/https://commons.wikimedia.org/w/api.php?" + $.param(params);
+			$.ajax({ url: url }).done(function(r) {
+				dfd.resolve(r.query.geosearch);
+			});
+
+			return dfd;
+		};
+
+		var getCommonsCategoriesForTitles = function(titles) {
+
+			var dfd = $.Deferred();
+
+			var params = { 
+
+				format: "json",
+				action: "query",
+				prop: "categories",
+				titles: titles.join("|"),
+				//origin: window.location.protocol + "//" + window.location.hostname + ":" + window.location.port
+			};
+
+			var url = "https://crossorigin.me/https://commons.wikimedia.org/w/api.php?" + $.param(params);
+			$.ajax({ url: url }).done(function(r) {
+
+				var categories = [];
+
+				_(r.query.pages).map(function(x) { _(x.categories).map(function(y) { categories.push(y.title) }) });
+
+				dfd.resolve(categories);
+				window.z = r.query.pages;
+			});
+
+			return dfd;
+		};
+
+		var getCommonsCategories = function(lat, lng, limit) {
+
+			var dfd = $.Deferred();
+
+			var params = { 
+				q: "claim[373] and around[625," + lat + "," + lng + "," + limit + "]",
+				props: "373,625"
+			};
+
+			var url = "https://crossorigin.me/http://wdq.wmflabs.org/api?" + $.param(params);
+			$.ajax({ url: url }).done(function(r) {
+				var result = _(r.props["373"]).map(function(x) { return x[2] });
+				dfd.resolve(result);
+			});
+
+			return dfd;
+		};
+
+		ko.observableArray.fn.pushAll = function(valuesToPush) {
+		    var underlyingArray = this();
+		    this.valueWillMutate();
+		    ko.utils.arrayPushAll(underlyingArray, valuesToPush);
+		    this.valueHasMutated();
+		    return this;  //optional
+		};
+
+		var Vm = function() {
+			var self = this;
+ 
+			self.tags = ko.observableArray();
+			self.categories = ko.observableArray();
+			self.fileCategories = ko.observableArray();
+			self.files = ko.observableArray();
+			self.latlng = ko.observable();
+
+			self.chunk = function (array, chunkSize) {
+		        // http://stackoverflow.com/questions/8495687/split-array-into-chunks
+		        var R = [];
+		        for (var i = 0; i < array.length; i += chunkSize)
+		            R.push(array.slice(i, i + chunkSize));
+		        return R;
+		    };
+
+			self.readFile = function(file) {
+
+				exif = new ExifReader();
+				exif.load(file);
+				exif.deleteTag('MakerNote');
+
+				// Output the tags on the page.
+				tags = exif.getAllTags();
+				return tags;
+
+			};
+
+			self.onFileChange = function(vm, e) {
+				console.log("here", arguments);
+
+				var files, reader;
+
+		    	files = event.target.files;
+		    	reader = new FileReader();
+
+		    	reader.onload = function (event) {
+
+			    	var tags = self.readFile(event.target.result);
+			    	self.tags(_.pairs(tags));
+
+
+			    	self.latlng({ 
+			    		lat: tags["GPSLatitude"].description * (tags["GPSLatitudeRef"].value == "S" ? -1 : 1),
+			    		lng: tags["GPSLongitude"].description * (tags["GPSLongitudeRef"].value == "W" ? -1 : 1)
+			    	});
+			    };
+
+			    // We only need the start of the file for the Exif info.
+			    reader.readAsArrayBuffer(files[0].slice(0, 128 * 1024));
+			};
+
+			self.fileCategoriesSorted = ko.computed(function() {
+				return _(self.fileCategories()).sortBy(function(x) { return -x.count });
+			});
+
+			self.latlng.subscribe(function() {
+
+				self.fileCategories.removeAll();
+
+				getCommonsCategories(self.latlng().lat, self.latlng().lng, 1).done(function(categories) {
+					self.categories(categories);
+				});
+
+				getNearbyCommonsPhotos(self.latlng().lat, self.latlng().lng, 2000).done(function(files) {
+					self.files(files);
+
+
+					var fileNames = _(files).map(function(x) { return x.title; });
+
+					var fileNameChunks = self.chunk(fileNames, 30);
+
+					_(fileNameChunks).map(function(fileNameChunk) {
+						getCommonsCategoriesForTitles(fileNameChunk).done(function(r){
+							var fileCategories = _(r).chain().countBy().map(function(value, key) { return { category: key, count: value  }; }).value();
+
+							self.fileCategories.pushAll(fileCategories);
+						});
+					});
+
+					
+				});
+			});
+		};
+
+		var vm = new Vm();
+		ko.applyBindings(vm, $("body")[0]);
+	</script>
+</html>
