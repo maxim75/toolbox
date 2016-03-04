@@ -11,46 +11,126 @@
 				width: 50px;
 				height: 50px;
 			}
+
+			.btn-file {
+			    position: relative;
+			    overflow: hidden;
+			    height: 100px;
+			    width: 300px;
+			}
+			.btn-file input[type=file] {
+			    position: absolute;
+			    top: 0;
+			    right: 0;
+			    min-width: 100%;
+			    min-height: 100%;
+			    font-size: 100px;
+			    text-align: right;
+			    filter: alpha(opacity=0);
+			    opacity: 0;
+			    outline: none;
+			    background: white;
+			    cursor: inherit;
+			    display: block;
+
+			}
 		</style>
 	</head>
  
 	<body>
-		 <input type="file" id="file" name="file" data-bind="event: { change: onFileChange }" />
+		<span class="btn btn-default btn-file">
+    		Browse <input type="file" id="file" name="file" data-bind="event: { change: onFileChange }" />
+		</span>
 
-		 <ul data-bind="foreach: categories">
-		 	<li data-bind="text: $data"></li>
-		 </ul>
+		<ul data-bind="visible: latlng()">
+			<li>
+				<span data-bind="text: getGeolink('latlon')"></span>
+			</li>
+			<li>
+				<a href="#" data-bind="attr: { href: getGeolink('google') }">Google Map</a>
+			</li>
+			<li>
+				<a href="#" data-bind="attr: { href: getGeolink('commons') }">Commons</a>
+			</li>
+		</ul>
+		
 
-		 <table class="table">
-	      <thead>
-	        <tr>
-	          <th>dist</th>
-	          <th>title</th>
-	        </tr>
-	      </thead>
-	      <tbody id="exif-table-body" data-bind="foreach: fileCategoriesSorted">
-	      	<tr>
-	      		<td data-bind="text: category"></td>
-	      		<td data-bind="text: count"></td>
-	      	</tr>
-	      </tbody>
-	    </table>
+		<div data-bind="visible: categories().length > 0">
+			<h3>Categories</h3>
+			<ul data-bind="foreach: categories">
+			 	<li>
+			 		<a href="#" data-bind="attr: { href: getCommonsUrl('Category:'+$data) }">
+			 			<span data-bind="text: $data"></span>
+			 		</a>
+			 	</li>
+			</ul>
+		</div>
+
+		<div data-bind="visible: fileCategories().length > 0">
+			<h3>File Categories</h3>
+			<table class="table">
+		      <thead>
+		        <tr>
+		          <th>title</th>
+		          <th>count</th>
+		        </tr>
+		      </thead>
+		      <tbody id="exif-table-body" data-bind="foreach: groupArray(fileCategories())">
+		      	<tr>
+		      		<td>
+		      			<a href="#" data-bind="attr: { href: getCommonsUrl(value) }">
+		      				<span data-bind="text: value"></span>
+		      			</a>
+		      		</td>
+		      		<td data-bind="text: count"></td>
+		      	</tr>
+		      </tbody>
+		    </table>
+	    </div>
+
+	    <div data-bind="visible: contributors().length > 0">
+			<h3>Contributors</h3>
+			<table class="table">
+		      <thead>
+		        <tr>
+		          <th>title</th>
+		          <th>count</th>
+		        </tr>
+		      </thead>
+		      <tbody id="exif-table-body" data-bind="foreach: groupArray(contributors())">
+		      	<tr>
+		      		<td>
+		      			<a href="#" data-bind="attr: { href: 'User:'+getCommonsUrl(value) }">
+		      				<span data-bind="text: value"></span>
+		      			</a>
+		      		</td>
+		      		<td data-bind="text: count"></td>
+		      	</tr>
+		      </tbody>
+		    </table>
+	    </div>
 		 
-
-		 <table class="table">
-	      <thead>
-	        <tr>
-	          <th>dist</th>
-	          <th>title</th>
-	        </tr>
-	      </thead>
-	      <tbody id="exif-table-body" data-bind="foreach: files">
-	      	<tr>
-	      		<td data-bind="text: dist"></td>
-	      		<td data-bind="text: title"></td>
-	      	</tr>
-	      </tbody>
-	    </table>
+		<div data-bind="visible: files().length > 0">
+			<h3>Files</h3>
+			<table class="table">
+				<thead>
+					<tr>
+						<th>dist</th>
+						<th>title</th>
+					</tr>
+				</thead>
+				<tbody id="exif-table-body" data-bind="foreach: files">
+					<tr>
+						<td data-bind="text: dist"></td>
+						<td>
+							<a href="#" data-bind="attr: { href: getCommonsUrl(title) }">
+			      				<span data-bind="text: title"></span>
+			      			</a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+	    </div>
 
 		 <table class="table">
 	      <thead>
@@ -77,8 +157,17 @@
 	<script src="//cdn.jsdelivr.net/knockout.validation/1.0.2/knockout.validation.min.js"></script>
 	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 
+	<script src="https://cdn.rawgit.com/maxim75/geolinks/0.0.11/dist/geolinks.js"></script>
 	<script src="jslib/ExifReader.js?2"></script>
 	<script>
+
+		var escapeWikimediaName = function(name) {
+			return encodeURI(name.replace(" ", "_"));
+		};
+
+		var getCommonsUrl = function(name) {
+			return "https://commons.wikimedia.org/wiki/" + escapeWikimediaName(name);
+		};
 
 		var getNearbyCommonsPhotos = function(lat, lng, radius) {
 
@@ -112,7 +201,7 @@
 
 				format: "json",
 				action: "query",
-				prop: "categories",
+				prop: "categories|contributors",
 				titles: titles.join("|"),
 				//origin: window.location.protocol + "//" + window.location.hostname + ":" + window.location.port
 			};
@@ -121,11 +210,12 @@
 			$.ajax({ url: url }).done(function(r) {
 
 				var categories = [];
+				var contributors = [];
 
 				_(r.query.pages).map(function(x) { _(x.categories).map(function(y) { categories.push(y.title) }) });
+				_(r.query.pages).map(function(x) { _(x.contributors).map(function(y) { contributors.push(y.name) }) });
 
-				dfd.resolve(categories);
-				window.z = r.query.pages;
+				dfd.resolve({categories: categories, contributors: contributors});
 			});
 
 			return dfd;
@@ -162,9 +252,19 @@
  
 			self.tags = ko.observableArray();
 			self.categories = ko.observableArray();
+			self.contributors = ko.observableArray();
 			self.fileCategories = ko.observableArray();
 			self.files = ko.observableArray();
 			self.latlng = ko.observable();
+
+			self.getGeolink = function(id) {
+				return ko.computed(function() {
+					if(!self.latlng()) return null;
+					return geolink.getLink(id, {lat: self.latlng().lat, lng:  self.latlng().lng, zoom: 17} );
+				});
+			};
+
+
 
 			self.chunk = function (array, chunkSize) {
 		        // http://stackoverflow.com/questions/8495687/split-array-into-chunks
@@ -187,7 +287,6 @@
 			};
 
 			self.onFileChange = function(vm, e) {
-				console.log("here", arguments);
 
 				var files, reader;
 
@@ -210,15 +309,22 @@
 			    reader.readAsArrayBuffer(files[0].slice(0, 128 * 1024));
 			};
 
-			self.fileCategoriesSorted = ko.computed(function() {
-				return _(self.fileCategories()).sortBy(function(x) { return -x.count });
-			});
+			self.groupArray = function(arr) {
+				return _(arr)
+					.chain()
+					.countBy()
+					.map(function(value, key) { return { value: key, count: value  }; })
+					.sortBy(function(x) { return -x.count })
+					.value();
+			};
+			
 
 			self.latlng.subscribe(function() {
 
 				self.fileCategories.removeAll();
+				self.contributors.removeAll();
 
-				getCommonsCategories(self.latlng().lat, self.latlng().lng, 1).done(function(categories) {
+				getCommonsCategories(self.latlng().lat, self.latlng().lng, 3).done(function(categories) {
 					self.categories(categories);
 				});
 
@@ -231,10 +337,11 @@
 					var fileNameChunks = self.chunk(fileNames, 30);
 
 					_(fileNameChunks).map(function(fileNameChunk) {
-						getCommonsCategoriesForTitles(fileNameChunk).done(function(r){
-							var fileCategories = _(r).chain().countBy().map(function(value, key) { return { category: key, count: value  }; }).value();
 
-							self.fileCategories.pushAll(fileCategories);
+						getCommonsCategoriesForTitles(fileNameChunk).done(function(r){
+
+							self.fileCategories.pushAll(r.categories);
+							self.contributors.pushAll(r.contributors);
 						});
 					});
 
