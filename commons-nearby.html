@@ -38,116 +38,136 @@
 	</head>
  
 	<body>
-		<span class="btn btn-default btn-file">
-    		Browse <input type="file" id="file" name="file" data-bind="event: { change: onFileChange }" />
-		</span>
-
-		<ul data-bind="visible: latlng()">
-			<li>
-				<span data-bind="text: getGeolink('latlon')"></span>
-			</li>
-			<li>
-				<a href="#" data-bind="attr: { href: getGeolink('google') }">Google Map</a>
-			</li>
-			<li>
-				<a href="#" data-bind="attr: { href: getGeolink('commons') }">Commons</a>
-			</li>
-		</ul>
-		
-
-		<div data-bind="visible: categories().length > 0">
-			<h3>Categories</h3>
-			<ul data-bind="foreach: categories">
-			 	<li>
-			 		<a href="#" data-bind="attr: { href: getCommonsUrl('Category:'+$data) }">
-			 			<span data-bind="text: $data"></span>
-			 		</a>
-			 	</li>
-			</ul>
+		<div data-bind="visible: false"> 
+			Loading...
 		</div>
+		<div style="display: none" data-bind="visible: true"> 
 
-		<div data-bind="visible: fileCategories().length > 0">
-			<h3>File Categories</h3>
-			<table class="table">
-		      <thead>
-		        <tr>
-		          <th>title</th>
-		          <th>count</th>
-		        </tr>
-		      </thead>
-		      <tbody id="exif-table-body" data-bind="foreach: groupArray(fileCategories())">
-		      	<tr>
-		      		<td>
-		      			<a href="#" data-bind="attr: { href: getCommonsUrl(value) }">
-		      				<span data-bind="text: value"></span>
-		      			</a>
-		      		</td>
-		      		<td data-bind="text: count"></td>
-		      	</tr>
-		      </tbody>
-		    </table>
-	    </div>
+			<span class="btn btn-default btn-file">
+	    		<span>Drag & drop image file or click to select file</span>
+	    		<input type="file" id="file" name="file" data-bind="event: { change: onFileChange }" />
+			</span>
 
-	    <div data-bind="visible: contributors().length > 0">
-			<h3>Contributors</h3>
-			<table class="table">
-		      <thead>
-		        <tr>
-		          <th>title</th>
-		          <th>count</th>
-		        </tr>
-		      </thead>
-		      <tbody id="exif-table-body" data-bind="foreach: groupArray(contributors())">
-		      	<tr>
-		      		<td>
-		      			<a href="#" data-bind="attr: { href: 'User:'+getCommonsUrl(value) }">
-		      				<span data-bind="text: value"></span>
-		      			</a>
-		      		</td>
-		      		<td data-bind="text: count"></td>
-		      	</tr>
-		      </tbody>
-		    </table>
-	    </div>
-		 
-		<div data-bind="visible: files().length > 0">
-			<h3>Files</h3>
-			<table class="table">
-				<thead>
-					<tr>
-						<th>dist</th>
-						<th>title</th>
-					</tr>
-				</thead>
-				<tbody id="exif-table-body" data-bind="foreach: files">
-					<tr>
-						<td data-bind="text: dist"></td>
-						<td>
-							<a href="#" data-bind="attr: { href: getCommonsUrl(title) }">
-			      				<span data-bind="text: title"></span>
+			<ul data-bind="visible: latlng(), foreach: [ 'latlon' ]">
+				<li>
+					<span data-bind="text: $data"></span>
+				</li>
+			</ul>
+
+			<ul data-bind="visible: latlng(), foreach: ['google', 'commons' ]">
+				<li>
+					<a href="#" data-bind="attr: { href: $parent.getGeolink($data) }">
+						<span data-bind="text: $data"></span>
+					</a>
+				</li>
+			</ul>
+			
+
+			<div data-bind="visible: categories().length > 0">
+				<h3>Categories</h3>
+				<ul data-bind="foreach: categories">
+				 	<li>
+				 		<a href="#" data-bind="attr: { href: getCommonsUrl('Category:'+$data) }">
+				 			<span data-bind="text: $data"></span>
+				 		</a>
+				 	</li>
+				</ul>
+			</div>
+
+			<div data-bind="visible: fileCategories().length > 0">
+				<h3>File Categories</h3>
+				<table class="table">
+			      <thead>
+			        <tr>
+			          <th>title</th>
+			          <th>count</th>
+			        </tr>
+			      </thead>
+			      <tbody id="exif-table-body" data-bind="foreach: groupArray(fileCategories())">
+			      	<tr>
+			      		<td>
+			      			<a href="#" data-bind="attr: { href: getCommonsUrl(value) }">
+			      				<span data-bind="text: value"></span>
 			      			</a>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-	    </div>
+			      		</td>
+			      		<td data-bind="text: count"></td>
+			      	</tr>
+			      </tbody>
+			    </table>
+		    </div>
 
-		 <table class="table">
-	      <thead>
-	        <tr>
-	          <th>Tag name</th>
-	          <th>Tag value</th>
-	        </tr>
-	      </thead>
+		    <div data-bind="visible: contributors().length > 0">
+				<h3>Contributors</h3>
+				<table class="table">
+			      <thead>
+			        <tr>
+			          <th>title</th>
+			          <th>count</th>
+			        </tr>
+			      </thead>
+			      <tbody id="exif-table-body" data-bind="foreach: groupArray(contributors())">
+			      	<tr>
+			      		<td>
+			      			<a href="#" data-bind="attr: { href: getCommonsUrl('User:'+value) }">
+			      				<span data-bind="text: value"></span>
+			      			</a>
+			      		</td>
+			      		<td data-bind="text: count"></td>
+			      	</tr>
+			      </tbody>
+			    </table>
+		    </div>
+			 
+			<div data-bind="visible: files().length > 0">
+				<h3>Files</h3>
+				<table class="table">
+					<thead>
+						<tr>
+							<th>dist</th>
+							<th>title</th>
+							<th>categories</th>
+						</tr>
+					</thead>
+					<tbody id="exif-table-body" data-bind="foreach: files">
+						<tr>
+							<td data-bind="text: dist"></td>
+							<td>
+								<a href="#" data-bind="attr: { href: getCommonsUrl(title) }">
+				      				<span data-bind="text: title"></span>
+				      			</a>
 
-	      <tbody id="exif-table-body" data-bind="foreach: tags">
-	      	<tr>
-	      		<td data-bind="text: $data[0]"></td>
-	      		<td data-bind="text: $data[1].value"></td>
-	      		<td data-bind="text: $data[1].description"></td>
-	      	</tr>
-	      </tbody>
-	    </table>
+							</td>
+							<td>
+								<span data-bind="text: ko.toJSON($parent.fileProperties()[title] && $parent.fileProperties()[title]['categories'])"></span>
+							</td>
+							<td>
+								<span data-bind="text: ko.toJSON($parent.fileProperties()[title] && $parent.fileProperties()[title]['contributors'])"></span>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+		    </div>
+
+		    <div data-bind="visible: tags().length > 0">
+			    <h3>EXIF data</h3>
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Tag name</th>
+							<th>Tag value</th>
+						</tr>
+					</thead>
+
+					<tbody id="exif-table-body" data-bind="foreach: tags">
+						<tr>
+							<td data-bind="text: $data[0]"></td>
+							<td data-bind="text: $data[1].value"></td>
+							<td data-bind="text: $data[1].description"></td>
+						</tr>
+					</tbody>
+				</table>
+		    </div>
+		</div>
 	</body>
  
 	<script src="//cdn.jsdelivr.net/jquery/2.2.1/jquery.min.js"></script>
@@ -181,12 +201,16 @@
 				gsnamespace: "6",
 				gsradius: radius,
 				gscoord: lat + "|" + lng,
-				"gslimit": 100
-				//origin: window.location.protocol + "//" + window.location.hostname + ":" + window.location.port
+				gslimit: 100
 			};
 
-			var url = "https://crossorigin.me/https://commons.wikimedia.org/w/api.php?" + $.param(params);
-			$.ajax({ url: url }).done(function(r) {
+			var url = "https://commons.wikimedia.org/w/api.php?" + $.param(params);
+			$.ajax({ 
+				url: url,
+				jsonp: "callback",
+				dataType: "jsonp"
+
+			}).done(function(r) {
 				dfd.resolve(r.query.geosearch);
 			});
 
@@ -198,24 +222,35 @@
 			var dfd = $.Deferred();
 
 			var params = { 
-
 				format: "json",
 				action: "query",
 				prop: "categories|contributors",
-				titles: titles.join("|"),
-				//origin: window.location.protocol + "//" + window.location.hostname + ":" + window.location.port
+				titles: titles.join("|")	
 			};
 
-			var url = "https://crossorigin.me/https://commons.wikimedia.org/w/api.php?" + $.param(params);
-			$.ajax({ url: url }).done(function(r) {
+			var url = "https://commons.wikimedia.org/w/api.php?" + $.param(params);
+			$.ajax({ 
+				url: url,
+				jsonp: "callback",
+				dataType: "jsonp"
+			}).done(function(r) {
 
 				var categories = [];
 				var contributors = [];
+				var pages = {};
 
 				_(r.query.pages).map(function(x) { _(x.categories).map(function(y) { categories.push(y.title) }) });
 				_(r.query.pages).map(function(x) { _(x.contributors).map(function(y) { contributors.push(y.name) }) });
 
-				dfd.resolve({categories: categories, contributors: contributors});
+				_(r.query.pages).map(function(x, pageId) { 
+					pages[x.title] = {
+						categories: _(x.categories).map(function(y) { return y.title; }),
+						contributors: _(x.contributors).map(function(y) { return y.name; }),
+					};
+					console.log("ZZZZ", x); 
+				});
+
+				dfd.resolve({categories: categories, contributors: contributors, pages: pages });
 			});
 
 			return dfd;
@@ -230,8 +265,12 @@
 				props: "373,625"
 			};
 
-			var url = "https://crossorigin.me/http://wdq.wmflabs.org/api?" + $.param(params);
-			$.ajax({ url: url }).done(function(r) {
+			var url = "http://wdq.wmflabs.org/api?" + $.param(params);
+			$.ajax({ 
+				url: url,
+				jsonp: "callback",
+				dataType: "jsonp"
+			}).done(function(r) {
 				var result = _(r.props["373"]).map(function(x) { return x[2] });
 				dfd.resolve(result);
 			});
@@ -255,6 +294,7 @@
 			self.contributors = ko.observableArray();
 			self.fileCategories = ko.observableArray();
 			self.files = ko.observableArray();
+			self.fileProperties = ko.observable();
 			self.latlng = ko.observable();
 
 			self.getGeolink = function(id) {
@@ -263,8 +303,6 @@
 					return geolink.getLink(id, {lat: self.latlng().lat, lng:  self.latlng().lng, zoom: 17} );
 				});
 			};
-
-
 
 			self.chunk = function (array, chunkSize) {
 		        // http://stackoverflow.com/questions/8495687/split-array-into-chunks
@@ -321,6 +359,7 @@
 
 			self.latlng.subscribe(function() {
 
+				self.fileProperties({});
 				self.fileCategories.removeAll();
 				self.contributors.removeAll();
 
@@ -334,7 +373,7 @@
 
 					var fileNames = _(files).map(function(x) { return x.title; });
 
-					var fileNameChunks = self.chunk(fileNames, 30);
+					var fileNameChunks = self.chunk(fileNames, 10);
 
 					_(fileNameChunks).map(function(fileNameChunk) {
 
@@ -342,6 +381,14 @@
 
 							self.fileCategories.pushAll(r.categories);
 							self.contributors.pushAll(r.contributors);
+
+							_(r.pages).map(function(x, y) {
+								self.fileProperties()[y] = x;
+							});
+							
+							self.fileProperties.notifySubscribers();
+
+							console.log("PPPP", r.pages);
 						});
 					});
 
