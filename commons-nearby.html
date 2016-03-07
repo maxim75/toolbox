@@ -137,11 +137,15 @@
 				      			</a>
 
 							</td>
-							<td>
-								<span data-bind="text: ko.toJSON($parent.fileProperties()[title] && $parent.fileProperties()[title]['categories'])"></span>
+							<td data-bind="foreach: $root.listCategories($data.title)">
+								<div>
+									<a href="#" data-bind="text: $data, attr: { href: getCommonsUrl($data) }"></a>
+								</div>
 							</td>
-							<td>
-								<span data-bind="text: ko.toJSON($parent.fileProperties()[title] && $parent.fileProperties()[title]['contributors'])"></span>
+							<td data-bind="foreach: $root.listContributors($data.title)">
+								<div>
+									<a href="#" data-bind="text: $data, attr: { href: getCommonsUrl('User:'+$data) }"></a>
+								</div>
 							</td>
 						</tr>
 					</tbody>
@@ -247,7 +251,6 @@
 						categories: _(x.categories).map(function(y) { return y.title; }),
 						contributors: _(x.contributors).map(function(y) { return y.name; }),
 					};
-					console.log("ZZZZ", x); 
 				});
 
 				dfd.resolve({categories: categories, contributors: contributors, pages: pages });
@@ -356,6 +359,19 @@
 					.value();
 			};
 			
+			self.listCategories = function(title) {
+
+				return self.fileProperties()[title] 
+					? self.fileProperties()[title]['categories']
+					: [];
+			};
+
+			self.listContributors = function(title) {
+
+				return self.fileProperties()[title] 
+					? self.fileProperties()[title]['contributors']
+					: [];
+			};
 
 			self.latlng.subscribe(function() {
 
@@ -373,7 +389,7 @@
 
 					var fileNames = _(files).map(function(x) { return x.title; });
 
-					var fileNameChunks = self.chunk(fileNames, 10);
+					var fileNameChunks = self.chunk(fileNames, 1);
 
 					_(fileNameChunks).map(function(fileNameChunk) {
 
@@ -387,8 +403,6 @@
 							});
 							
 							self.fileProperties.notifySubscribers();
-
-							console.log("PPPP", r.pages);
 						});
 					});
 
