@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1"> 
+		<link href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css" rel="stylesheet" type="text/css" />
+		<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+ 
+		<style>
+			/* CSS here */
+		</style>
+	</head>
+ 
+	<body>
+		<div class="container">
+			<h1>Datediff</h1>
+
+			<p>Calculates difference between two dates for use with 
+				<a href="http://www.sno.phy.queensu.ca/~phil/exiftool/">exiftool</a>
+				to change datetime in EXIF metadata
+			</p>
+
+			<div data-bind="template: { name: 'template_datetimefield', data: firstDateFieldVm }"></div>
+			<div data-bind="template: { name: 'template_datetimefield', data: secondDateFieldVm }"></div>
+
+			<button class="btn">OK</button>
+
+			<p>
+				<pre data-bind="text: dateDiff"></pre>
+			</p>
+		</div>
+	</body>
+ 
+	<script src="//cdn.jsdelivr.net/jquery/2.2.1/jquery.min.js"></script>
+	<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+	<script src="//cdn.jsdelivr.net/underscorejs/1.8.2/underscore-min.js"></script>
+	<script src="//cdn.jsdelivr.net/knockout/3.4.0/knockout.js"></script>
+	<script src="//cdn.jsdelivr.net/knockout.validation/1.0.2/knockout.validation.min.js"></script>
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+ 	<script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.js"></script>
+ 	<script src="jslib/knockout-jqueryui.min.js"></script>
+
+ 	<script type="text/html" id="template_datetimefield">
+ 		<input type="text" data-bind="datepicker: { dateFormat: 'yy-mm-dd', maxDate: maxDate }, value: datePickerValue" />
+		<input type="text" data-bind="value: timeTextbox">
+ 	</script>
+
+ 	
+
+	<script>
+		String.prototype.format = function () {
+		    var args = arguments;
+		    return this.replace(/{(\d+)}/g, function (match, number) {
+		        return typeof args[number] != 'undefined'
+		          ? args[number]
+		          : match;
+		    });
+		};
+
+		function pad(num, size) {
+		    var s = num+"";
+		    while (s.length < size) s = "0" + s;
+		    return s;
+		}
+
+		var DateTimeFieldVm = function(date) {
+			var self = this;
+
+			self.date = date;
+			self.maxDate = moment.utc().format("YYYY-MM-DD");
+
+			self.datePickerValue = ko.computed({
+				read: function() { return self.date().utc().format("YYYY-MM-DD") },
+				write: function(x) { 
+					var parsedDate = moment.utc(x, "YYYY-MM-DD");
+					var date = self.date();
+					date.year(parsedDate.year());
+					date.month(parsedDate.month());
+					date.day(parsedDate.day());
+					self.date(date);
+				},
+			});
+
+			self.timeTextbox = ko.computed({
+				read: function() { 
+					return self.date().utc().format("HH:mm:ss");
+				},
+				write: function(x) { 
+					var parsedTime = moment.utc(x, "HH:mm:ss");
+					var date = self.date();
+					date.hour(parsedTime.hour());
+					date.minute(parsedTime.minute());
+					date.second(parsedTime.second());
+					date.millisecond(0);
+					self.date(date);
+				},
+			});
+		};
+
+		var Vm = function() {
+			var self = this;
+
+			self.firstDate = ko.observable(moment.utc());
+			self.secondDate = ko.observable(moment.utc());
+
+			self.dateDiff = ko.computed(function() { 
+				var ticks = self.secondDate()-self.firstDate(); 
+				var duration = moment.duration(Math.abs(ticks));
+				var days = Math.floor(duration.asDays());
+				// exiftool "-AllDates+=0:00:669 01:25:12" -overwrite_original_in_place -verbose  a.JPG
+				return "{0}0:00:{1} {2}:{3}:{4}".format(ticks > 0 ? "+=" : "-=" , days, pad(duration.hours(), 2), pad(duration.minutes(), 2), pad(duration.seconds(), 2));
+			});
+
+			self.firstDateFieldVm = new DateTimeFieldVm(self.firstDate);
+			self.secondDateFieldVm = new DateTimeFieldVm(self.secondDate);
+ 
+		};
+ 
+		var vm = new Vm();
+		ko.applyBindings(vm, $("body")[0]);
+	</script>
+</html>

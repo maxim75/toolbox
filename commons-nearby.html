@@ -339,11 +339,18 @@
 			    	var tags = self.readFile(event.target.result);
 			    	self.tags(_.pairs(tags));
 
+			    	if(tags["GPSLatitude"] && tags["GPSLongitude"]) {
+			    		self.latlng({ 
+				    		lat: tags["GPSLatitude"].description * (tags["GPSLatitudeRef"].value == "S" ? -1 : 1),
+				    		lng: tags["GPSLongitude"].description * (tags["GPSLongitudeRef"].value == "W" ? -1 : 1)
+				    	});
+			    	}
+			    	else
+			    	{
+			    		self.latlng(null);
+			    	}
 
-			    	self.latlng({ 
-			    		lat: tags["GPSLatitude"].description * (tags["GPSLatitudeRef"].value == "S" ? -1 : 1),
-			    		lng: tags["GPSLongitude"].description * (tags["GPSLongitudeRef"].value == "W" ? -1 : 1)
-			    	});
+			    	
 			    };
 
 			    // We only need the start of the file for the Exif info.
@@ -378,6 +385,8 @@
 				self.fileProperties({});
 				self.fileCategories.removeAll();
 				self.contributors.removeAll();
+
+				if(!self.latlng()) return;
 
 				getCommonsCategories(self.latlng().lat, self.latlng().lng, 3).done(function(categories) {
 					self.categories(categories);
