@@ -50,7 +50,7 @@
 
 			<ul data-bind="visible: latlng(), foreach: [ 'latlon' ]">
 				<li>
-					<span data-bind="text: $data"></span>
+					<span data-bind="text: $parent.getGeolink($data)"></span>
 				</li>
 			</ul>
 
@@ -61,7 +61,39 @@
 					</a>
 				</li>
 			</ul>
-			
+
+			<!-- ko if: reverseGeocode() -->
+			<h3>Reverse Geocode</h3>
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Tag name</th>
+						<th>Tag value</th>
+					</tr>
+				</thead>
+
+				<tbody id="exif-table-body" data-bind="foreach: reverseGeocode().features">
+					<tr>
+						<td data-bind="text: $data.properties.name"></td>
+						<td data-bind="text: $data.properties.distance"></td>
+						<td data-bind="text: $data.properties.label"></td>
+						<td data-bind="text: $data.properties.gid"></td>
+					</tr>
+				</tbody>
+			</table>
+			<p>
+				<a href="https://search.mapzen.com/v1/attribution">Geocoding by Pelias from Mapzen</a> 
+			</p>
+
+			<p>Data from:
+				<ul>
+					<li>OpenStreetMap OpenStreetMap contributors under ODbL</li>
+					<li>OpenAddresses under a Creative Commons Zero public domain designation</li>
+					<li>Quattroshapes under CC-BY-2.0</li>
+					<li>GeoNames under CC-BY-3.0</li>
+				</ul>
+			</p>
+			<!-- /ko -->
 
 			<div data-bind="visible: categories().length > 0">
 				<h3>Categories</h3>
@@ -185,6 +217,26 @@
 	<script src="jslib/ExifReader.js?2"></script>
 	<script>
 
+		var reverseGeocode = function(lat, lng, apiKey) {
+
+			var dfd = $.Deferred();
+
+			var params = {
+				"api_key": apiKey,
+				"point.lat": lat, 
+				"point.lon": lng
+			};
+
+			$.ajax("https://search.mapzen.com/v1/reverse?" + $.param(params))
+			.done(function(response) {
+
+				//console.log("F", response.features);
+				dfd.resolve(response);
+			});
+
+			return dfd; 
+		};
+
 		var escapeWikimediaName = function(name) {
 			return encodeURI(name.replace(" ", "_"));
 		};
@@ -292,6 +344,7 @@
 		var Vm = function() {
 			var self = this;
  
+ 			self.reverseGeocode = ko.observable();
 			self.tags = ko.observableArray();
 			self.categories = ko.observableArray();
 			self.contributors = ko.observableArray();
@@ -349,8 +402,6 @@
 			    	{
 			    		self.latlng(null);
 			    	}
-
-			    	
 			    };
 
 			    // We only need the start of the file for the Exif info.
@@ -380,13 +431,23 @@
 					: [];
 			};
 
+			self.getReverseGeocode = function() {
+				reverseGeocode(self.latlng().lat, self.latlng().lng, "search-TFuxM-I")
+				.done(function(response) {
+					self.reverseGeocode(response);
+				});
+			};
+
 			self.latlng.subscribe(function() {
 
 				self.fileProperties({});
 				self.fileCategories.removeAll();
 				self.contributors.removeAll();
+				self.reverseGeocode(null);
 
 				if(!self.latlng()) return;
+
+				self.getReverseGeocode();
 
 				getCommonsCategories(self.latlng().lat, self.latlng().lng, 3).done(function(categories) {
 					self.categories(categories);
@@ -414,8 +475,6 @@
 							self.fileProperties.notifySubscribers();
 						});
 					});
-
-					
 				});
 			});
 		};
