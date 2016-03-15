@@ -193,6 +193,33 @@
 				</table>
 		    </div>
 
+		    <div data-bind="visible: wikipediaArticles().length > 0">
+				<h3>Wikipedia</h3>
+				<table class="table">
+					<thead>
+						<tr>
+							<th>dist</th>
+							<th>title</th>
+							<th>lang</th>
+							<th>rank</th>
+						</tr>
+					</thead>
+					<tbody data-bind="foreach: _(wikipediaArticles()).sortBy(function(x) { return x.distance; })">
+						<tr>
+							<td data-bind="text: distance"></td>
+							<td>
+								<a href="#" data-bind="attr: { href: 'https://'+wikipediaUrl }">
+				      				<span data-bind="text: title"></span>
+				      			</a>
+
+							</td>
+							<td data-bind="text: lang"></td>
+							<td data-bind="text: rank"></td>
+						</tr>
+					</tbody>
+				</table>
+		    </div>
+
 		    <div data-bind="visible: tags().length > 0">
 			    <h3>EXIF data</h3>
 				<table class="table">
@@ -226,6 +253,32 @@
 	<script src="https://cdn.rawgit.com/maxim75/geolinks/0.0.11/dist/geolinks.js"></script>
 	<script src="jslib/ExifReader.js?2"></script>
 	<script>
+
+		// http://www.geonames.org/export/wikipedia-webservice.html
+		// http://api.geonames.org/findNearbyWikipediaJSON?lat=47&lng=9&username=demo&lang=de
+		var findNearbyWikipedia = function(lat, lng, username, lang) {
+
+			var dfd = $.Deferred();
+
+			var params = {
+				"username": username,
+				"lat": lat, 
+				"lng": lng,
+				"lang": lang,
+				"radius": 20
+			};
+
+			$.ajax("http://api.geonames.org/findNearbyWikipediaJSON?" + $.param(params))
+			.done(function(response) {
+
+				//console.log("F", response.features);
+				dfd.resolve(response);
+			});
+
+			return dfd; 
+		};
+
+		
 
 		var reverseGeocode = function(lat, lng, apiKey) {
 
@@ -355,6 +408,7 @@
 			var self = this;
  
  			self.reverseGeocode = ko.observable();
+ 			self.wikipediaArticles = ko.observableArray();
 			self.tags = ko.observableArray();
 			self.categories = ko.observableArray();
 			self.contributors = ko.observableArray();
@@ -503,6 +557,15 @@
 						});
 					});
 				});
+
+				self.wikipediaArticles.removeAll();
+
+				_(["en", "uk", "pl"]).map(function(lang) {
+					findNearbyWikipedia(self.latlng().lat, self.latlng().lng, "maxim75", lang).done(function(result) { 
+						self.wikipediaArticles.pushAll(result.geonames);
+					});
+				});
+				
 			});
 		};
 
