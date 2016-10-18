@@ -22,6 +22,9 @@ $("a[target='_blank']").each(function(idx, el) {
 
 if(current && current.usage.length > 0) list.push(current);
 
+// sort
+list = list.sort(function(a, b) { return a.name < b.name ? -1 : 1; });
+
 var text = "";
 list.forEach(function(x) { 
 	text += "======= " + decodeURIComponent(x.name) + "\n";
@@ -31,5 +34,7 @@ list.forEach(function(x) {
 
 	text += "\n";
 })
+
+
 
 $("body").prepend($("<textarea style='position: absolute; width: 100%; height: 100%; background-color: #eee; z-index: 10000'>").text(text));

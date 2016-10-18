@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1"> 
+		
+ 		<!-- Local -->
+		<link href="jslib/bootstrap.min.css" rel="stylesheet" type="text/css" />
+ 		<!-- End local -->
+
+		<style>
+			body {
+				color: #ddd;
+			}
+
+			div {
+			   word-spacing: -3px;
+			}
+
+			.part {
+				cursor: pointer;
+				color: #000;
+				margin: 0;
+				padding: 0;
+				display:inline-block;
+			}
+
+			.part.word {
+				margin-left: 2px;
+			}
+
+			.part.word.dict {
+				/*background-color: #eef;*/
+			}
+
+			.part:hover {
+				background-color: #eee;
+			}
+
+			.contents {
+				margin: 10px;
+
+			}
+
+
+			.st {
+				left: 0;
+				right: 0;
+				line-height: 30pt;
+				font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+
+			}
+
+			.part.word  {
+				font-size: 10pt;
+				display: inline-block;
+				position: relative;
+
+			}
+
+			.part.word .note-top {
+				color: #000;
+				display: inline-block;
+				top: -10pt;
+
+				position: absolute;
+			}
+
+			.part.word .note-bottom {
+				color: #999;
+				display: inline-block;
+				top: 10pt;
+				left: 0;
+				position: absolute;
+			}
+			.part.word .border {
+				border: solid 1px Red;
+				position: absolute;
+				bottom: 10pt;
+				top: 10pt;
+				left: 0;
+				right: 0;
+				border-radius: 1pt;
+			}
+		</style>
+	</head>
+ 
+	<body>
+		<!-- <div class="test">
+			<span>aaa</span> <span>bbb&#128701;&#129301;</span>, <span>ccc</span>, <span><span class="border"></span><span class="note-top">&#9679;TTTTTTTTTTT</span><span class="note-bottom">BBB</span>BBBBBB</span>, <span>bbb</span>, <span>ccc</span>
+			<span>aaa</span>, <span>bbb</span>, <span>ccc</span>, <span>aaa</span>, <span>bbb</span>, <span>ccc</span>
+			<span>aaa</span>, <span>bbb</span>, <span><span class="note">ZZZZ</span>ZZZZZZZ</span>, <span>aaa</span>, <span>bbb</span>, <span>ccc</span>
+			<span>aaa</span>, <span>bbb</span>, <span>ccc</span>, <span>aaa</span>, <span>bbb</span>, <span>ccc</span>
+		</div> -->
+
+
+		<div>
+			<span data-bind="text: lang"></span>
+			<select data-bind="options: langList,
+                       value: lang"></select>
+		</div>
+
+		<div data-bind="foreach: contentsView" class="contents">
+			<div>
+				<div class="st">
+					<div data-bind="foreach: items">
+						<span data-bind="attr: { class: 'part ' + className(), title: note  }, event: { click: onClick }" }">
+							<span class="note-bottom" data-bind="text: note"></span>
+							<span data-bind="text: str"></span>
+						</span>
+					</div>
+					<a href="#" data-bind="attr: { href: getGtLink($root.lang, 'en')(toString()) }">GT</a>
+				</div>
+			</div>
+		</div>
+
+		<table class="table">
+			<tbody data-bind="foreach: stats">
+				<tr>
+					<td>
+						<span data-bind="text: $data[0]"></span>
+					</td>
+					<td>
+						<span data-bind="text: $data[1]"></span>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+
+		<input type="text" data-bind="value: dictFilter, valueUpdate:'afterkeydown'" >
+
+		<table class="table">
+			<tbody data-bind="foreach: dictView">
+				<tr>
+					<td>
+						<span data-bind="text: $data[0]"></span>
+					</td>
+					<td>
+						<span data-bind="text: $data[1].note"></span>
+					</td>
+					<td>
+						<a href="#" data-bind="click: function() { pubsub.publish('dict-remove', [$data[0]]); }">X</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<form action="" data-bind="submit: onTextSubmit">
+			<textarea data-bind="value: textareaValue"></textarea>
+			<button type="submit">Add</button>
+		</form>
+
+		<div>
+			<button data-bind="click: onDownloadClick">D</button>
+			<input type="file" data-bind="event: { change: onFileInputChange }" />
+		</div>
+
+		<div id="edit-word-modal" class="modal fade">
+			<div class="modal-dialog" role="document">
+			    <div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+       					 <h4 class="modal-title">Edit</h4>
+					</div>
+					<div class="modal-body">
+						<form data-bind="submit: onEditWordSubmit">
+							<div>
+								<input type="text" data-bind="value: dictWord" />
+							</div>
+							<div>
+								<input type="text" data-bind="value: note" />
+							</div>
+							<button type="submit">OK</button>
+
+							<ul data-bind="foreach: refLinks(dictWord())">
+
+								<li>
+									<a href="#" data-bind="attr: { href: url }">
+										<span data-bind="text: title"></span>
+									</a>
+								</li>
+							</ul>						
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+
+ 	<!-- Local -->
+	<script src="jslib/jquery-3.1.0.min.js"></script>
+	<script src="jslib/lodash.js"></script>
+	<script src="jslib/knockout-3.4.0.js"></script>
+	<script src="jslib/bootstrap.min.js"></script>
+	<script src="jslib/pubsub.js"></script>
+	<script src="jslib/ramda.min.js"></script>
+ 	<!-- End local -->
+
+ 	<script src="ltrainer/ltrainer.js"></script>
+
+	<script>
+		(function() {
+			"use strict";
+
+			window.viewModel = new Vm();
+
+			
+
+			ko.applyBindings(window.viewModel, $("body")[0]); 
+
+			var contents = spSt(sp("Sale, more. Just one.Te\nst"));
+			console.log(contents);
+
+			self.viewModel.contents(contents);
+
+		})();
+	</script>
+</html>
