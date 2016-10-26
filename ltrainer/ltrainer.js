@@ -307,6 +307,7 @@
 
 				self.contents = ko.observableArray();
 				self.stats = ko.observableArray();
+				self.translations = ko.observableArray();
 
 				self.onTextSubmit = function() {
 					self.contents(spSt(sp(self.textareaValue())));
@@ -361,6 +362,20 @@
 
 				self.refLinks = function(str) {
 					return _(refLinks[self.lang()]).map(function(x) { return { title: x.title, url: x.func(str) }; }).value();
+				};
+
+				self.dictWord.subscribe(function() {
+					self.translations([]);
+				});
+
+				self.onLookupClick = function() {
+					glosbeCall("de", "ru", self.dictWord()).done(function(x) { 
+						self.translations(parseGlosbeCallResponse(x)); 
+					});
+				};
+
+				self.onTranslationClick = function(str) {
+					self.note(str);
 				};
 
 				pubsub.subscribe("word-click", function(str) {

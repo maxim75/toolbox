@@ -172,8 +172,20 @@
 							</div>
 							<button type="submit">OK</button>
 
-							<ul data-bind="foreach: refLinks(dictWord())">
+							<button data-bind="click: onLookupClick">Lookup</button>
+							<table data-bind="foreach: translations">
+								<tr>
+									<td data-bind="text: language"></td>
+									<td>
+										<a href="#" data-bind="click: $parent.onTranslationClick(text)">
+										<span data-bind="text: text"></span>
+										</a>
+									</td>
+									<td data-bind="text: type"></td>
+								</tr>
+							</table>
 
+							<ul data-bind="foreach: refLinks(dictWord())">
 								<li>
 									<a href="#" data-bind="attr: { href: url }">
 										<span data-bind="text: title"></span>
