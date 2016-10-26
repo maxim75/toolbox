@@ -16,6 +16,54 @@
 			// image to text OCR
 			// http://www.to-text.net/
 
+
+
+
+
+
+
+
+
+
+			window.glosbeCall = function(sourceLang, targetLang, str) {
+				var dfd = new $.Deferred();
+
+				var url = "https://crossorigin.me/https://glosbe.com/gapi/translate?" + $.param({
+					from: sourceLang,
+					dest: targetLang,
+					format: "json",
+					phrase: str,
+					pretty: "true"
+				});
+				$.ajax({
+					url: url
+				}).done(function(result) {
+					dfd.resolve(result);
+				});
+
+				return dfd;
+				// https://glosbe.com/gapi/translate?from=deu&dest=eng&format=json&phrase=Morgen&pretty=true
+			};
+
+			window.parseGlosbeCallResponse = function(r) {
+				var result = [];
+				//console.log("r", r.tuc);
+				r.tuc.forEach(function(x) { 
+					if(x.meanings) {
+						x.meanings.forEach(function(y) {
+							//console.log("y", y);
+							result.push({ language: y.language, text: y.text, type: "meaning" });
+						});
+					}
+					if(x.phrase) {
+						result.push({ language: x.phrase.language, text: x.phrase.text, type: "phrase" });
+						//console.log(x.phrase);
+					}
+					
+				});
+				return result;
+			};
+
 			var getGtLink = function(sourceLang, targetLang, str) {
 				if(str === undefined)
 					return function(str) { return getGtLink(sourceLang, targetLang, str); };
