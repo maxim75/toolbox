@@ -7,6 +7,8 @@
 		<link href="jslib/bootstrap.min.css" rel="stylesheet" type="text/css" />
  		<!-- End local -->
 
+ 		<link href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAkY+NAP///wDJxL0AtbCqAKGdmQAEBNQAAwMDAIJ/fAAAAP8AendzACsrKgAAAJQAlJGOAF5cWQBXVVIAAiIi8YtyIiAiIiLxi3IiIiIiIiGLIiIiIiIiKWwiIiIiIiIpbCIiIiIiIilsIiIiIiIiKWwiIiIiIiIpbCIiIiIiIilsIiIiIiIiKWwiIi4iIiIpbCIi7j7iLu7e4i5VRKrurd2upVJEqkTd3a1VIjRCJERERCIiAiIiIiIiIiCAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQAA" rel="icon" type="image/x-icon" />
+
 		<style>
 			body {
 				color: #ddd;
@@ -92,6 +94,18 @@
 			.gtlink {
 				margin-left: 5px;
 			}
+
+
+			@media print
+			{    
+			    .noprint {
+					display: none;
+				}
+
+				.part.word .note-bottom {
+					font-style: italic;
+				}
+			}
 		</style>
 	</head>
  
@@ -112,7 +126,7 @@
 							<span class="text" data-bind="text: str"></span>
 						</span> 
 					</span>
-					<a href="#" class="gtlink" data-bind="attr: { href: getGtLink($root.lang, 'en')(toString()) }">GT</a>
+					<a href="#" class="gtlink noprint" data-bind="attr: { href: getGtLink($root.lang, 'en')(toString()) }">GT</a>
 				</div>
 			</div>
 		</div>
@@ -131,7 +145,7 @@
 		</table>
 
 
-		<input type="text" data-bind="value: dictFilter, valueUpdate:'afterkeydown'" >
+		<input type="text" class="noprint" data-bind="value: dictFilter, valueUpdate:'afterkeydown'" >
 
 		<table class="table">
 			<tbody data-bind="foreach: dictView">
@@ -149,12 +163,12 @@
 			</tbody>
 		</table>
 
-		<form action="" data-bind="submit: onTextSubmit">
+		<form class="noprint" action="" data-bind="submit: onTextSubmit">
 			<textarea data-bind="value: textareaValue"></textarea>
 			<button type="submit">Add</button>
 		</form>
 
-		<div>
+		<div class="noprint">
 			<button data-bind="click: onDownloadClick">D</button>
 			<input type="file" data-bind="event: { change: onFileInputChange }" />
 		</div>
