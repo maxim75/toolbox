@@ -1,0 +1,96 @@
+body {
+	color: #ddd;
+}
+
+.part {
+	cursor: pointer;
+	color: #000;
+	margin: 0;
+	padding: 0;
+	display:inline-block;
+
+}
+
+.st {
+	word-spacing: -3px;
+}
+
+.part .text {
+	
+}
+
+.part.word {
+	margin-left: 2px;
+}
+
+.part.word.dict {
+	/*background-color: #eef;*/
+}
+
+.part:hover {
+	background-color: #eee;
+}
+
+.contents {
+	margin: 10px;
+
+}
+
+
+.st {
+	left: 0;
+	right: 0;
+	line-height: 30pt;
+	font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+
+}
+
+.part.word  {
+	font-size: 10pt;
+	display: inline-block;
+	position: relative;
+
+}
+
+.part.word .note-top {
+	color: #000;
+	display: inline-block;
+	top: -10pt;
+
+	position: absolute;
+}
+
+.part.word .note-bottom {
+	color: #999;
+	display: inline-block;
+	top: 10pt;
+	left: 0;
+	position: absolute;
+	white-space: nowrap;
+	word-spacing: normal;
+}
+.part.word .border {
+	border: solid 1px Red;
+	position: absolute;
+	bottom: 10pt;
+	top: 10pt;
+	left: 0;
+	right: 0;
+	border-radius: 1pt;
+}
+
+.gtlink {
+	margin-left: 5px;
+}
+
+
+@media print
+{    
+    .noprint {
+		display: none;
+	}
+
+	.part.word .note-bottom {
+		font-style: italic;
+	}
+}

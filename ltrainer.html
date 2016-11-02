@@ -5,116 +5,21 @@
 		
  		<!-- Local -->
 		<link href="jslib/bootstrap.min.css" rel="stylesheet" type="text/css" />
+		<link href="ltrainer/style.css" rel="stylesheet" type="text/css" />
  		<!-- End local -->
 
  		<link href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAkY+NAP///wDJxL0AtbCqAKGdmQAEBNQAAwMDAIJ/fAAAAP8AendzACsrKgAAAJQAlJGOAF5cWQBXVVIAAiIi8YtyIiAiIiLxi3IiIiIiIiGLIiIiIiIiKWwiIiIiIiIpbCIiIiIiIilsIiIiIiIiKWwiIiIiIiIpbCIiIiIiIilsIiIiIiIiKWwiIi4iIiIpbCIi7j7iLu7e4i5VRKrurd2upVJEqkTd3a1VIjRCJERERCIiAiIiIiIiIiCAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQAA" rel="icon" type="image/x-icon" />
-
-		<style>
-			body {
-				color: #ddd;
-			}
-
-			.part {
-				cursor: pointer;
-				color: #000;
-				margin: 0;
-				padding: 0;
-				display:inline-block;
-
-			}
-
-			.st {
-				word-spacing: -3px;
-			}
-
-			.part .text {
-				
-			}
-
-			.part.word {
-				margin-left: 2px;
-			}
-
-			.part.word.dict {
-				/*background-color: #eef;*/
-			}
-
-			.part:hover {
-				background-color: #eee;
-			}
-
-			.contents {
-				margin: 10px;
-
-			}
-
-
-			.st {
-				left: 0;
-				right: 0;
-				line-height: 30pt;
-				font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
-
-			}
-
-			.part.word  {
-				font-size: 10pt;
-				display: inline-block;
-				position: relative;
-
-			}
-
-			.part.word .note-top {
-				color: #000;
-				display: inline-block;
-				top: -10pt;
-
-				position: absolute;
-			}
-
-			.part.word .note-bottom {
-				color: #999;
-				display: inline-block;
-				top: 10pt;
-				left: 0;
-				position: absolute;
-				white-space: nowrap;
-				word-spacing: normal;
-			}
-			.part.word .border {
-				border: solid 1px Red;
-				position: absolute;
-				bottom: 10pt;
-				top: 10pt;
-				left: 0;
-				right: 0;
-				border-radius: 1pt;
-			}
-
-			.gtlink {
-				margin-left: 5px;
-			}
-
-
-			@media print
-			{    
-			    .noprint {
-					display: none;
-				}
-
-				.part.word .note-bottom {
-					font-style: italic;
-				}
-			}
-		</style>
 	</head>
  
 	<body>
 
 		<div>
-			<span data-bind="text: lang"></span>
-			<select data-bind="options: langList,
-                       value: lang"></select>
+			<span data-bind="text: ltrainer.lang"></span>
+			<select data-bind="options: langList, value: ltrainer.lang"></select>
+		</div>
+		<div>
+			<span data-bind="text: ltrainer.targetLang"></span>
+			<select data-bind="options: langList, value: ltrainer.targetLang"></select>
 		</div>
 
 		<div data-bind="foreach: contentsView" class="contents">
@@ -126,7 +31,7 @@
 							<span class="text" data-bind="text: str"></span>
 						</span> 
 					</span>
-					<a href="#" class="gtlink noprint" data-bind="attr: { href: getGtLink($root.lang, 'en')(toString()) }">GT</a>
+					<a href="#" target="_blank" class="gtlink noprint" data-bind="attr: { href: gtLink }">GT</a>
 				</div>
 			</div>
 		</div>
@@ -200,8 +105,8 @@
 								<tr>
 									<td data-bind="text: language"></td>
 									<td>
-										<a href="#" data-bind="click: function(e) { $parent.onTranslationClick(e, text); }">
-										<span data-bind="text: text"></span>
+										<a href="#" data-bind="click: function(vm, e) { $parent.onTranslationClick(e, text); }">
+											<span data-bind="text: text"></span>
 										</a>
 									</td>
 									<td data-bind="text: type"></td>
@@ -242,16 +147,8 @@
 	<script>
 		(function() {
 			"use strict";
-
 			window.viewModel = new Vm();
-
 			ko.applyBindings(window.viewModel, $("body")[0]); 
-
-			var contents = spSt(sp("Sale, more. Just one.Te\nst"));
-			console.log(contents);
-
-			self.viewModel.contents(contents);
-
 		})();
 	</script>
 </html>

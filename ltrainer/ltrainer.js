@@ -16,17 +16,15 @@
 			// image to text OCR
 			// http://www.to-text.net/
 
+			var ltrainer = window.ltrainer = window.ltrainer || {};
 
-
-
-
-
-
-
-
+			ltrainer.lang = ko.observable("de");
+			ltrainer.targetLang = ko.observable("ru");
 
 			window.glosbeCall = function(sourceLang, targetLang, str) {
 				var dfd = new $.Deferred();
+
+				console.log("GT", sourceLang, targetLang, str);
 
 				var url = "https://crossorigin.me/https://glosbe.com/gapi/translate?" + $.param({
 					from: sourceLang,
@@ -42,7 +40,6 @@
 				});
 
 				return dfd;
-				// https://glosbe.com/gapi/translate?from=deu&dest=eng&format=json&phrase=Morgen&pretty=true
 			};
 
 			window.parseGlosbeCallResponse = function(r) {
@@ -88,13 +85,6 @@
 				]
 			};
 
-			// ["a", "b", ".", "c", ".", "z"].reduce(function(x, y) { 
-			// 	console.log(x, y);   
-			// 	x[x.length-1].push(y); 
-			// 	if(y === ".") x.push([]); 
-			// 	return x }, [[]]
-			// );
-
 			var St = function() {
 				var self = this;
 
@@ -109,7 +99,8 @@
 				};
 
 				self.gtLink = ko.computed(function() {
-					return getGtLink("de", "en", self.toString());
+					var url = getGtLink(ltrainer.lang(), ltrainer.targetLang(), self.toString());
+					return url;
 				});
 			};
 
@@ -221,7 +212,7 @@
 			var sp = function(str) {
 				var buffer = "";
 				var result = [];
-				var pmarks = ".,?!;:\"'()\n";
+				var pmarks = "\u201E\u201C.,?!;:\"'()\n";
 
 				for(var i=0; i<str.length; i++)
 				{
@@ -249,7 +240,7 @@
 			var spSt = function(x) {
 				var arr = x.reduce(function(x, y) { 
 					x[x.length-1].push(y); 
-					if(y instanceof PMark && y.str === ".") { 
+					if(y instanceof PMark && _([".", "?", "!"]).includes(y.str)) { 
 						x.push([]); 
 					}
 					return x }, [[]]
@@ -260,8 +251,6 @@
 					st.items(x);
 					return st;
 				});
-
-				console.log("result", result);
 
 				return result;
 			};
@@ -299,8 +288,8 @@
 				self.dictWord = ko.observable();
 				self.note = ko.observable();
 
-				self.langList = [ "de", "pl" ];
-				self.lang = ko.observable("de");
+				self.langList = [ "de", "pl", "ru", "en" ];
+
 				self.dictFilter = ko.observable("");
 
 	 			self.textareaValue = ko.observable();
@@ -312,6 +301,7 @@
 				self.onTextSubmit = function() {
 					self.contents(spSt(sp(self.textareaValue())));
 					self.textareaValue("");
+					localStorage["contents"] = self.contentsToString();
 				};
 
 				self.stats = ko.computed(function() {
@@ -325,22 +315,27 @@
 					return self.contents();
 				});
 
+				self.contentsToString = function() {
+					var strings = _(self.contents()).map(function(x) { return x.toString(); });
+					return strings.join(" ");
+
+				}
+
 				self.dictView = ko.computed(function() {
 					var updated = self.dict.updated();
 					return _(self.dict.dict)
 						.toPairs()
 						.sortBy(function(x) { return x[0] })
-						.filter(function(x) { return x[0].split(":")[0] === self.lang() && (!self.dictFilter() || x[0].split(":")[1].indexOf(self.dictFilter()) !== -1); })
+						.filter(function(x) { return x[0].split(":")[0] === ltrainer.lang() && (!self.dictFilter() || x[0].split(":")[1].indexOf(self.dictFilter()) !== -1); })
 						.map(function(x) { return [ x[0].split(":")[1], x[1] ] })
 						.value();
 				});
 
 				self.addToDict = function(str, note) {
-					self.dict.add(str, self.lang(), note);
+					self.dict.add(str, ltrainer.lang(), note);
 				};
 
 				self.onEditWordSubmit = function() {
-					console.log("here", self.dictWord(), self.note());
 					self.addToDict(self.dictWord(), self.note());
 					$("#edit-word-modal").modal('hide');
 				};
@@ -361,7 +356,7 @@
 				};
 
 				self.refLinks = function(str) {
-					return _(refLinks[self.lang()]).map(function(x) { return { title: x.title, url: x.func(str) }; }).value();
+					return _(refLinks[ltrainer.lang()]).map(function(x) { return { title: x.title, url: x.func(str) }; }).value();
 				};
 
 				self.dictWord.subscribe(function() {
@@ -375,11 +370,9 @@
 					return self.loadingInProgress() ? 'Loading' : 'Lookup';
 				});
 
-				
-
 				self.onLookupClick = function() {
 					self.loadingInProgress(true);
-					glosbeCall("de", "ru", self.dictWord()).done(function(x) { 
+					glosbeCall(ltrainer.lang(), ltrainer.targetLang(), self.dictWord()).done(function(x) { 
 						self.translations(parseGlosbeCallResponse(x)); 
 					}).always(function() {
 						self.loadingInProgress(false);
@@ -393,20 +386,24 @@
 
 				pubsub.subscribe("word-click", function(str) {
 					self.dictWord(str);
-					var dictWord = self.dict.lookup(str, self.lang());
+					var dictWord = self.dict.lookup(str, ltrainer.lang());
 					self.note(dictWord ? dictWord.note : "");
 					$("#edit-word-modal").modal("show");
 				});
 
 				pubsub.subscribe("dict-remove", function(str) {
-					self.dict.delete(str, self.lang());
+					self.dict.delete(str, ltrainer.lang());
 				});
+
+				self.contents(spSt(sp(localStorage["contents"] || "")));
+
+				
 				
 			};
 
 		var lang = function(str, lang) {
 				var updated = self.dict.updated();
-				return window.viewModel ? window.viewModel.lang() : "de";
+				return window.viewModel ? ltrainer.lang() : "de";
 			};
 
 		var dictLookup = function(str, lang) {
