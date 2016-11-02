@@ -12,16 +12,21 @@
 				color: #ddd;
 			}
 
-			div {
-			   word-spacing: -3px;
-			}
-
 			.part {
 				cursor: pointer;
 				color: #000;
 				margin: 0;
 				padding: 0;
 				display:inline-block;
+
+			}
+
+			.st {
+				word-spacing: -3px;
+			}
+
+			.part .text {
+				
 			}
 
 			.part.word {
@@ -71,6 +76,8 @@
 				top: 10pt;
 				left: 0;
 				position: absolute;
+				white-space: nowrap;
+				word-spacing: normal;
 			}
 			.part.word .border {
 				border: solid 1px Red;
@@ -81,17 +88,14 @@
 				right: 0;
 				border-radius: 1pt;
 			}
+
+			.gtlink {
+				margin-left: 5px;
+			}
 		</style>
 	</head>
  
 	<body>
-		<!-- <div class="test">
-			<span>aaa</span> <span>bbb&#128701;&#129301;</span>, <span>ccc</span>, <span><span class="border"></span><span class="note-top">&#9679;TTTTTTTTTTT</span><span class="note-bottom">BBB</span>BBBBBB</span>, <span>bbb</span>, <span>ccc</span>
-			<span>aaa</span>, <span>bbb</span>, <span>ccc</span>, <span>aaa</span>, <span>bbb</span>, <span>ccc</span>
-			<span>aaa</span>, <span>bbb</span>, <span><span class="note">ZZZZ</span>ZZZZZZZ</span>, <span>aaa</span>, <span>bbb</span>, <span>ccc</span>
-			<span>aaa</span>, <span>bbb</span>, <span>ccc</span>, <span>aaa</span>, <span>bbb</span>, <span>ccc</span>
-		</div> -->
-
 
 		<div>
 			<span data-bind="text: lang"></span>
@@ -105,10 +109,10 @@
 					<span data-bind="foreach: items">
 						<span data-bind="attr: { class: 'part ' + className(), title: note  }, event: { click: onClick }" }">
 							<span class="note-bottom" data-bind="text: note"></span>
-							<span data-bind="text: str"></span>
+							<span class="text" data-bind="text: str"></span>
 						</span> 
 					</span>
-					<a href="#" data-bind="attr: { href: getGtLink($root.lang, 'en')(toString()) }">GT</a>
+					<a href="#" class="gtlink" data-bind="attr: { href: getGtLink($root.lang, 'en')(toString()) }">GT</a>
 				</div>
 			</div>
 		</div>
@@ -172,7 +176,12 @@
 							</div>
 							<button type="submit">OK</button>
 
-							<button data-bind="click: onLookupClick">Lookup</button>
+							<button data-bind="click: onLookupClick, text: lookupButtonText">
+								Lookup
+							</button>
+
+							<div data-bind="visible: translations().length === 0">No results</div>
+
 							<table data-bind="foreach: translations">
 								<tr>
 									<td data-bind="text: language"></td>

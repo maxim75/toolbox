@@ -368,9 +368,21 @@
 					self.translations([]);
 				});
 
+
+				self.loadingInProgress = ko.observable(false);
+
+				self.lookupButtonText = ko.pureComputed(function() {
+					return self.loadingInProgress() ? 'Loading' : 'Lookup';
+				});
+
+				
+
 				self.onLookupClick = function() {
+					self.loadingInProgress(true);
 					glosbeCall("de", "ru", self.dictWord()).done(function(x) { 
 						self.translations(parseGlosbeCallResponse(x)); 
+					}).always(function() {
+						self.loadingInProgress(false);
 					});
 				};
 
