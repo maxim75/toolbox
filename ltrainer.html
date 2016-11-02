@@ -177,7 +177,7 @@
 								<tr>
 									<td data-bind="text: language"></td>
 									<td>
-										<a href="#" data-bind="click: $parent.onTranslationClick(text)">
+										<a href="#" data-bind="click: function(e) { $parent.onTranslationClick(e, text); }">
 										<span data-bind="text: text"></span>
 										</a>
 									</td>
@@ -214,6 +214,7 @@
  	<!-- End local -->
 
  	<script src="ltrainer/ltrainer.js"></script>
+ 	<script src="ltrainer/gist.js"></script>
 
 	<script>
 		(function() {

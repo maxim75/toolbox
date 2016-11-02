@@ -374,8 +374,9 @@
 					});
 				};
 
-				self.onTranslationClick = function(str) {
+				self.onTranslationClick = function(e, str) {
 					self.note(str);
+					e.preventDefault();
 				};
 
 				pubsub.subscribe("word-click", function(str) {
