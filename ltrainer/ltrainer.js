@@ -18,8 +18,20 @@
 
 			var ltrainer = window.ltrainer = window.ltrainer || {};
 
-			ltrainer.lang = ko.observable("de");
-			ltrainer.targetLang = ko.observable("ru");
+			ltrainer.StoredValue = function(key, defaultValue) {
+				return new ko.computed({ 
+					read: function() {
+						return localStorage[key] || defaultValue;
+					}, 
+					write: function(value) {
+						localStorage[key] = value;
+					} 
+				});
+			};
+
+			ltrainer.lang = new ltrainer.StoredValue("lang", "de");
+			ltrainer.targetLang = new ltrainer.StoredValue("targetLang", "ru"); 
+			ltrainer.googleApiKey = new ltrainer.StoredValue("googleApiKey", null); 
 
 			window.glosbeCall = function(sourceLang, targetLang, str) {
 				var dfd = new $.Deferred();
@@ -105,6 +117,15 @@
 					var url = getGtLink(ltrainer.lang(), ltrainer.targetLang(), self.toString());
 					return url;
 				});
+
+				self.onTranslationKeypress = function(d,e) {
+					console.log(e);
+					if(e.keyCode === 13) {
+						self.translationEdit(false);
+    				}
+    				return true;
+				};
+
 			};
 
 			var Word = function(str) { 
@@ -413,6 +434,7 @@
 				var updated = self.dict.updated();
 				return window.dict.lookup(str, lang);
 			};
+
 
 
 

@@ -31,11 +31,12 @@
 							<span class="text" data-bind="text: str"></span>
 						</span> 
 					</span>
-					<a href="#" target="_blank" class="gtlink noprint" data-bind="attr: { href: gtLink }">GT</a>
-					<a data-bind="click: function() { translationEdit(!translationEdit()) }">E</a>
-					<div data-bind="text: translation, visible: !translationEdit()"></div>
+					<a href="#" target="_blank" class="gtlink noprint" data-bind="attr: { href: gtLink }">GT</a> 
+					<a href="#" data-bind="click: function(vm, e) { e.preventDefault(); translationEdit(!translationEdit()) }">E</a>
+
+					<div class="translationView" data-bind="text: translation, visible: !translationEdit()"></div>
 					<div data-bind="visible: translationEdit">
-					<input type="text" data-bind="value: translation" />
+					<input type="text" class="translationEdit" data-bind="value: translation, event: {keypress: onTranslationKeypress}" />
 					</div>
 				</div>
 			</div>
@@ -135,6 +136,10 @@
 				<a href="http://www.structurise.com/screenshot-ocr/">OCR</a>
 			</li>
 		</ul>
+		<div>
+			Google API key:
+			<input type="text" data-bind="value: ltrainer.googleApiKey">
+		</div>
 	</body>
 
  	<!-- Local -->

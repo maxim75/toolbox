@@ -83,6 +83,15 @@ body {
 	margin-left: 5px;
 }
 
+.translationView {
+	color: #666;
+	word-spacing: normal;
+	font-style: italic;
+}
+
+.translationEdit {
+	width: 100%;	
+}
 
 @media print
 {    
