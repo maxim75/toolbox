@@ -90,6 +90,9 @@
 
 				self.items = ko.observableArray();
 
+				self.translation = ko.observable();
+				self.translationEdit = ko.observable(false);
+
 				self.toString = function() {
 					return _(self.items())
 						.reduce(function(x, y) { 

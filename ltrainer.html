@@ -32,6 +32,11 @@
 						</span> 
 					</span>
 					<a href="#" target="_blank" class="gtlink noprint" data-bind="attr: { href: gtLink }">GT</a>
+					<a data-bind="click: function() { translationEdit(!translationEdit()) }">E</a>
+					<div data-bind="text: translation, visible: !translationEdit()"></div>
+					<div data-bind="visible: translationEdit">
+					<input type="text" data-bind="value: translation" />
+					</div>
 				</div>
 			</div>
 		</div>
