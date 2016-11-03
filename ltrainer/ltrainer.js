@@ -73,7 +73,7 @@
 				return result;
 			};
 
-			var getGtLink = function(sourceLang, targetLang, str) {
+			ltrainer.getGtLink = function(sourceLang, targetLang, str) {
 				if(str === undefined)
 					return function(str) { return getGtLink(sourceLang, targetLang, str); };
 
@@ -95,92 +95,6 @@
 					{ title: "sjp", func: function(str) { return "http://sjp.pwn.pl/szukaj/" + encodeURI(str) + ".html" } },
 					{ title: "wiktionary", func: function(str) { return "https://pl.wiktionary.org/w/index.php?" + $.param({ search: str }) } }
 				]
-			};
-
-			var St = function() {
-				var self = this;
-
-				self.items = ko.observableArray();
-
-				self.translation = ko.observable();
-				self.translationEdit = ko.observable(false);
-
-				self.toString = function() {
-					return _(self.items())
-						.reduce(function(x, y) { 
-							var space = ((y instanceof Word) && x !== "") ? " " : "";
-							return (x + space + y.str);
-						}, "");
-				};
-
-				self.gtLink = ko.computed(function() {
-					var url = getGtLink(ltrainer.lang(), ltrainer.targetLang(), self.toString());
-					return url;
-				});
-
-				self.onTranslationKeypress = function(d,e) {
-					if(e.keyCode === 13) {
-						self.translationEdit(false);
-    				}
-    				return true;
-				};
-
-			};
-
-			St.prototype.getValue = function() {
-				return { 
-					items: _(this.items()).map(function(x) { console.log(x); return x.getValue(); }).value(),
-					translation: this.translation()
-				};
-			};
-
-			var Word = function(str) { 
-				var self = this;
-
-				self.str = str; 
-
-				self.onClick = function() {
-					pubsub.publish("word-click", [ self.str ]);
-				};
-
-				self.note = ko.computed(function() {
-					var dictEntry = dictLookup(self.str, lang());
-					return dictEntry ? dictEntry.note : null;
-				});
-
-				self.className = ko.computed(function() {
-					return self.note() ? "word dict" : "word" ;
-				});
-
-
-			};
-
-			Word.prototype.getValue = function() {
-				return { 
-					type: "Word",
-					str: this.str 
-				};
-			};
-			
-			var PMark = function(str) { 
-				this.str = str; 
-
-				self.onClick = function() {};
-
-				self.className = function() {
-					return "pmark";
-				};
-
-				self.note = ko.computed(function() {
-					return null;
-				});
-			};
-
-			PMark.prototype.getValue = function() {
-				return { 
-					type: "PMark",
-					str: this.str 
-				};
 			};
 
 			var Dict = function() {
@@ -249,45 +163,17 @@
 				this.note = note;
 			};
 
-			var sp = function(str) {
-				var buffer = "";
-				var result = [];
-				var pmarks = "\u201E\u201C.,?!;:\"'()\n";
-
-				for(var i=0; i<str.length; i++)
-				{
-					var char = str[i];
-					if(char === " ") {
-						if(buffer) result.push(new Word(buffer));
-						buffer = "";
-					}
-					else if(pmarks.indexOf(char) != -1)
-					{
-						if(buffer) result.push(new Word(buffer));
-						result.push(new PMark(char));
-						buffer = "";
-					}
-					else
-					{
-						buffer += str[i];
-					}
-				}
-				if(buffer) result.push(new Word(buffer));
-
-				return result;
-			};
-
 			var spSt = function(x) {
 				var arr = x.reduce(function(x, y) { 
 					x[x.length-1].push(y); 
-					if(y instanceof PMark && _([".", "?", "!"]).includes(y.str)) { 
+					if(y instanceof ltrainer.PMark && _([".", "?", "!"]).includes(y.str)) { 
 						x.push([]); 
 					}
 					return x }, [[]]
 				);
 
 				var result = arr.map(function(x) { 
-					var st = new St(); 
+					var st = new ltrainer.Sentence(); 
 					st.items(x);
 					return st;
 				});
@@ -299,7 +185,7 @@
 				var result = {};
 
 				_(contents).each(function(x) { 
-					if(x instanceof Word) {
+					if(x instanceof ltrainer.Word) {
 						if(!result[x.str]) result[x.str] = 0;
 						result[x.str] += 1;
 					}
@@ -339,7 +225,7 @@
 				self.translations = ko.observableArray();
 
 				self.onTextSubmit = function() {
-					self.contents(spSt(sp(self.textareaValue())));
+					self.contents(spSt(ltrainer.Sentence.ParseString(self.textareaValue())));
 					self.textareaValue("");
 					localStorage["contents"] = self.contentsToString();
 				};
@@ -435,7 +321,7 @@
 					self.dict.delete(str, ltrainer.lang());
 				});
 
-				self.contents(spSt(sp(localStorage["contents"] || "")));
+				self.contents(spSt(ltrainer.Sentence.ParseString(localStorage["contents"] || "")));
 
 				
 				
@@ -446,19 +332,13 @@
 				return window.viewModel ? ltrainer.lang() : "de";
 			};
 
-		var dictLookup = function(str, lang) {
+		ltrainer.dictLookup = function(str, lang) {
 				var updated = self.dict.updated();
 				return window.dict.lookup(str, lang);
 			};
 
-
-
-
 		window.Vm = Vm;
-		window.PMark = PMark;
-		window.sp = sp;
+
 		window.spSt = spSt;
-		window.dictLookup = dictLookup;
 		window.lang = lang;
-		window.getGtLink = getGtLink;
 })();
