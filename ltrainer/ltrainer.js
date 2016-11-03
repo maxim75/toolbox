@@ -119,13 +119,19 @@
 				});
 
 				self.onTranslationKeypress = function(d,e) {
-					console.log(e);
 					if(e.keyCode === 13) {
 						self.translationEdit(false);
     				}
     				return true;
 				};
 
+			};
+
+			St.prototype.getValue = function() {
+				return { 
+					items: _(this.items()).map(function(x) { console.log(x); return x.getValue(); }).value(),
+					translation: this.translation()
+				};
 			};
 
 			var Word = function(str) { 
@@ -145,18 +151,21 @@
 				self.className = ko.computed(function() {
 					return self.note() ? "word dict" : "word" ;
 				});
+
+
+			};
+
+			Word.prototype.getValue = function() {
+				return { 
+					type: "Word",
+					str: this.str 
+				};
 			};
 			
 			var PMark = function(str) { 
 				this.str = str; 
 
-				self.onClick = function() {
-					console.log("Click");
-					$('#modal').modal({
-					  keyboard: false
-					})
-					$('#modal').modal('show');
-				};
+				self.onClick = function() {};
 
 				self.className = function() {
 					return "pmark";
@@ -165,6 +174,13 @@
 				self.note = ko.computed(function() {
 					return null;
 				});
+			};
+
+			PMark.prototype.getValue = function() {
+				return { 
+					type: "PMark",
+					str: this.str 
+				};
 			};
 
 			var Dict = function() {
