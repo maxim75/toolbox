@@ -23,5 +23,10 @@
 			str: this.str 
 		};
 	};
+
+	ltrainer.PMark.create = function(value) {
+		var pmark = new ltrainer.PMark(value.str);
+		return pmark;
+	};
 			
 })();

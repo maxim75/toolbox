@@ -214,31 +214,42 @@
 				self.dictWord = ko.observable();
 				self.note = ko.observable();
 
+				self.storedDocument = new ltrainer.StoredValue("storedDocument", null); 
+
 				self.langList = [ "de", "pl", "ru", "en" ];
 
 				self.dictFilter = ko.observable("");
 
 	 			self.textareaValue = ko.observable();
 
-				self.contents = ko.observableArray();
+				self.document = new ltrainer.Document();
 				self.stats = ko.observableArray();
 				self.translations = ko.observableArray();
 
+				self.saveDocument = function() {
+					self.storedDocument(JSON.stringify(self.document.getValue()));
+				};
+
 				self.onTextSubmit = function() {
-					self.contents(spSt(ltrainer.Sentence.ParseString(self.textareaValue())));
+					var contents = spSt(ltrainer.Sentence.ParseString(self.textareaValue()));
+
+					_(contents).map(function(x) {
+						self.document.contents.push(x);
+					}).value();
+					//self.document.contents(contents);
 					self.textareaValue("");
-					localStorage["contents"] = self.contentsToString();
+					self.saveDocument();
 				};
 
 				self.stats = ko.computed(function() {
-					var s = stats(self.contents());
+					var s = stats(self.document.contents());
 
 					return _(s).toPairs().sortBy(function(x) { return -x[1] }).value();
 				});
 
 				self.contentsView = ko.computed(function() {
 					var updated = self.dict.updated();
-					return self.contents();
+					return self.document.contents();
 				});
 
 				self.contentsToString = function() {
@@ -310,6 +321,8 @@
 					e.preventDefault();
 				};
 
+
+
 				pubsub.subscribe("word-click", function(str) {
 					self.dictWord(str);
 					var dictWord = self.dict.lookup(str, ltrainer.lang());
@@ -321,7 +334,13 @@
 					self.dict.delete(str, ltrainer.lang());
 				});
 
-				self.contents(spSt(ltrainer.Sentence.ParseString(localStorage["contents"] || "")));
+				var storedDocument = self.storedDocument();
+				if(storedDocument) {
+					self.document.load(JSON.parse(storedDocument));
+				};
+
+
+				//self.document.contents(spSt(ltrainer.Sentence.ParseString(localStorage["contents"] || "")));
 
 				
 				

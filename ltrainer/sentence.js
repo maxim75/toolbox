@@ -34,10 +34,31 @@
 
 	ltrainer.Sentence.prototype.getValue = function() {
 		return { 
-			items: _(this.items()).map(function(x) { console.log(x); return x.getValue(); }).value(),
+			items: _(this.items()).map(function(x) { return x.getValue(); }).value(),
 			translation: this.translation()
 		};
 	};
+
+	ltrainer.Sentence.create = function(data) {
+		var sentence = new ltrainer.Sentence();
+
+		var items = _(data.items).map(function(x) {
+			switch(x.type) {
+				case "Word":
+					return ltrainer.Word.create(x);
+				case "PMark":
+					return ltrainer.PMark.create(x);
+				default:
+					throw "Unknown type";
+			} 
+		}).value();
+
+		sentence.items(items);
+		sentence.translation(data.translation);
+
+		return sentence;
+	};
+
 
 	ltrainer.Sentence.ParseString = function(str) {
 		var buffer = "";
