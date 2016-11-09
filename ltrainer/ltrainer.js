@@ -84,7 +84,6 @@
 				});
 			};
 
-
 			var refLinks = {
 				"de": [
 					{ title: "dict.cc", func: function(str) { return "https://www.dict.cc/?" + $.param({ s: str }) } },
@@ -226,8 +225,16 @@
 				self.stats = ko.observableArray();
 				self.translations = ko.observableArray();
 
+				self.getDodcumentAsString = function() {
+					return JSON.stringify(self.document.getValue());
+				};
+
 				self.saveDocument = function() {
-					self.storedDocument(JSON.stringify(self.document.getValue()));
+					self.storedDocument(self.getDodcumentAsString());
+				};
+
+				self.downloadDocument = function() {
+					download("ltrainer_document.json", self.getDodcumentAsString());
 				};
 
 				self.onTextSubmit = function() {
@@ -236,7 +243,7 @@
 					_(contents).map(function(x) {
 						self.document.contents.push(x);
 					}).value();
-					//self.document.contents(contents);
+
 					self.textareaValue("");
 					self.saveDocument();
 				};
@@ -281,12 +288,29 @@
 					download("dict.txt", self.dict.toString());
 				};
 
+				self.clearDocument = function() {
+					self.document.clear();
+				};
+
 				self.onFileInputChange = function(vm, e) {
 					var fileReader = new FileReader();
 
 					fileReader.onload = function(e) { 		  		
 						var fileContents = e.target.result;
-						self.dict.loadFromString(fileContents);
+
+						console.log("HERE");
+
+						try {
+
+							var jsonDoc = JSON.parse(fileContents);
+							self.document.load(jsonDoc);
+						}
+						catch(err) {
+							self.dict.loadFromString(fileContents);
+						}
+						
+
+						
 					};
 
 					fileReader.readAsText(e.target.files[0]);

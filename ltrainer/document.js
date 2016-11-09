@@ -10,6 +10,10 @@
 		
 	};
 
+	ltrainer.Document.prototype.clear = function() {
+		this.contents([]);
+	};
+
 	ltrainer.Document.prototype.load = function(data) {
 		var contents = _(data.contents).map(function(x) { return ltrainer.Sentence.create(x); }).value();
 		this.contents(contents);
