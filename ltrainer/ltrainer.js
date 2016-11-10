@@ -88,7 +88,8 @@
 				"de": [
 					{ title: "dict.cc", func: function(str) { return "https://www.dict.cc/?" + $.param({ s: str }) } },
 					{ title: "lingvolive", func: function(str) { return "https://www.lingvolive.com/en-us/translate/de-ru/" + encodeURI(str) } },
-					{ title: "wiktionary", func: function(str) { return "https://de.wiktionary.org/w/index.php?" + $.param({ search: str }) } }
+					{ title: "wiktionary", func: function(str) { return "https://de.wiktionary.org/w/index.php?" + $.param({ search: str }) } },
+					{ title: "collins", func: function(str) { return "http://www.collinsdictionary.com/dictionary/german-english/" + encodeURI(str) } },
 				],
 				"pl": [
 					{ title: "sjp", func: function(str) { return "http://sjp.pwn.pl/szukaj/" + encodeURI(str) + ".html" } },
