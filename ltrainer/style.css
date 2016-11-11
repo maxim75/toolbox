@@ -1,5 +1,5 @@
 body {
-	color: #ddd;
+	color: #000;
 }
 
 .part {
@@ -11,7 +11,7 @@ body {
 
 }
 
-.st {
+.st-text {
 	word-spacing: -3px;
 }
 

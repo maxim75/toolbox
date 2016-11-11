@@ -6,6 +6,7 @@
  		<!-- Local -->
 		<link href="jslib/bootstrap.min.css" rel="stylesheet" type="text/css" />
 		<link href="ltrainer/style.css" rel="stylesheet" type="text/css" />
+		<link rel="stylesheet" href="jslib/font-awesome-4.7.0/css/font-awesome.min.css">
  		<!-- End local -->
 
  		<link href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAkY+NAP///wDJxL0AtbCqAKGdmQAEBNQAAwMDAIJ/fAAAAP8AendzACsrKgAAAJQAlJGOAF5cWQBXVVIAAiIi8YtyIiAiIiLxi3IiIiIiIiGLIiIiIiIiKWwiIiIiIiIpbCIiIiIiIilsIiIiIiIiKWwiIiIiIiIpbCIiIiIiIilsIiIiIiIiKWwiIi4iIiIpbCIi7j7iLu7e4i5VRKrurd2upVJEqkTd3a1VIjRCJERERCIiAiIiIiIiIiCAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQAA" rel="icon" type="image/x-icon" />
@@ -25,14 +26,30 @@
 		<div data-bind="foreach: contentsView" class="contents">
 			<div>
 				<div class="st">
-					<span data-bind="foreach: items">
+					<span class="st-text" data-bind="foreach: items">
 						<span data-bind="attr: { class: 'part ' + className(), title: note  }, event: { click: onClick }" }">
 							<span class="note-bottom" data-bind="text: note"></span>
 							<span class="text" data-bind="text: str"></span>
 						</span> 
 					</span>
-					<a href="#" target="_blank" class="gtlink noprint" data-bind="attr: { href: gtLink }">GT</a> 
-					<a href="#" data-bind="click: function(vm, e) { e.preventDefault(); translationEdit(!translationEdit()) }">E</a>
+
+					<a class="btn btn-default" data-bind="click: function() { toolsExpanded(!toolsExpanded()); }">
+						<i class="fa fa-caret-down" aria-hidden="true" data-bind="css: { 'fa-caret-down': !toolsExpanded(), 'fa-caret-up': toolsExpanded }"></i>
+					</a>
+
+					<div data-bind="visible: toolsExpanded" class="noprint">
+
+						<a href="#" target="_blank" class="gtlink btn btn-default" data-bind="attr: { href: gtLink }">
+							<i class="fa fa-google" aria-hidden="true"></i>
+							Google Translate
+						</a>
+
+						<a href="#" class="btn btn-default" data-bind="click: function(vm, e) { e.preventDefault(); translationEdit(!translationEdit()) }">
+							<i class="fa fa-pencil" aria-hidden="true"></i>
+							Edit note
+						</a>
+
+					</div>
 
 					<div class="translationView" data-bind="text: translation, visible: !translationEdit()"></div>
 					<div data-bind="visible: translationEdit">

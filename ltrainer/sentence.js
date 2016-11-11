@@ -10,6 +10,7 @@
 
 		self.translation = ko.observable();
 		self.translationEdit = ko.observable(false);
+		self.toolsExpanded = ko.observable(false);
 
 		self.toString = function() {
 			return _(self.items())
@@ -30,6 +31,8 @@
 			}
 			return true;
 		};
+
+
 	};
 
 	ltrainer.Sentence.prototype.getValue = function() {
