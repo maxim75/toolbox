@@ -19,12 +19,15 @@
 			var ltrainer = window.ltrainer = window.ltrainer || {};
 
 			ltrainer.StoredValue = function(key, defaultValue) {
+				var observable = ko.observable();
 				return new ko.computed({ 
 					read: function() {
+						observable();
 						return localStorage[key] || defaultValue;
 					}, 
 					write: function(value) {
 						localStorage[key] = value;
+						observable(value);
 					} 
 				});
 			};
@@ -268,10 +271,12 @@
 
 				self.dictView = ko.computed(function() {
 					var updated = self.dict.updated();
+					var lang = ltrainer.lang()
+
 					return _(self.dict.dict)
 						.toPairs()
 						.sortBy(function(x) { return x[0] })
-						.filter(function(x) { return x[0].split(":")[0] === ltrainer.lang() && (!self.dictFilter() || x[0].split(":")[1].indexOf(self.dictFilter()) !== -1); })
+						.filter(function(x) { return x[0].split(":")[0] === lang && (!self.dictFilter() || x[0].split(":")[1].indexOf(self.dictFilter()) !== -1); })
 						.map(function(x) { return [ x[0].split(":")[1], x[1] ] })
 						.value();
 				});

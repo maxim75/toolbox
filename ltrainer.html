@@ -23,6 +23,8 @@
 			<select data-bind="options: langList, value: ltrainer.targetLang"></select>
 		</div>
 
+		<a href="#dictionary">dictionary</a>
+
 		<div data-bind="foreach: contentsView" class="contents">
 			<div>
 				<div class="st">
@@ -75,7 +77,7 @@
 
 		<input type="text" class="noprint" data-bind="value: dictFilter, valueUpdate:'afterkeydown'" >
 
-		<table class="table">
+		<table class="table" id="dictionary">
 			<tbody data-bind="foreach: dictView">
 				<tr>
 					<td>
@@ -91,15 +93,7 @@
 			</tbody>
 		</table>
 
-		<form class="noprint" action="" data-bind="submit: onTextSubmit">
-			<textarea data-bind="value: textareaValue"></textarea>
-			<button type="submit">Add</button>
-		</form>
-
-		<div class="noprint">
-			<button data-bind="click: onDownloadClick">D</button>
-			<input type="file" data-bind="event: { change: onFileInputChange }" />
-		</div>
+		
 
 		<div id="edit-word-modal" class="modal fade">
 			<div class="modal-dialog" role="document">
@@ -161,10 +155,20 @@
 			<input type="text" data-bind="value: ltrainer.googleApiKey">
 		</div>
 
+		<form class="noprint" action="" data-bind="submit: onTextSubmit">
+			<textarea data-bind="value: textareaValue" style="width: 100%"></textarea>
+			<button type="submit">Add</button>
+		</form>
+
+		<div class="noprint">
+			<input type="file" data-bind="event: { change: onFileInputChange }" />
+		</div>
+
 		<div>
 			<button data-bind="click: clearDocument">Clear</button>
 			<button data-bind="click: saveDocument">Save</button>
 			<button data-bind="click: downloadDocument">Download document</button>
+			<button data-bind="click: onDownloadClick">Download dictionary</button>
 		</div>
 	</body>
 
