@@ -1,0 +1,172 @@
+<html>
+  <head>
+    <script type="text/javascript">
+
+      /**
+ * Insert new file.
+ *
+ * @param {File} fileData File object to read data from.
+ * @param {Function} callback Function to call when the request is complete.
+ */
+function insertFile(fileName, contentType, contents, callback) {
+  const boundary = '-------314159265358979323846';
+  const delimiter = "\r\n--" + boundary + "\r\n";
+  const close_delim = "\r\n--" + boundary + "--";
+
+  var contentType = contentType || 'application/octet-stream';
+  var metadata = {
+    'title': fileName,
+    //'mimeType': contentType,
+    'spaces': "appDataFolder",
+    'parents': [ 'appDataFolder']
+  };
+
+  var base64Data = btoa(contents);
+  var multipartRequestBody =
+      delimiter +
+      'Content-Type: application/json\r\n\r\n' +
+      JSON.stringify(metadata) +
+      delimiter +
+      'Content-Type: ' + contentType + '\r\n' +
+      'Content-Transfer-Encoding: base64\r\n' +
+      '\r\n' +
+      base64Data +
+      close_delim;
+
+  var requestParams = {
+      'path': '/upload/drive/v2/files',
+      'method': 'POST',
+      'params': {'uploadType': 'multipart'},
+      'headers': {
+        'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
+      },
+      'body': multipartRequestBody};
+
+  console.log("requestParams", requestParams);
+
+  var request = gapi.client.request(requestParams);
+
+
+    request.execute(callback);
+
+}
+
+      // Your Client ID can be retrieved from your project in the Google
+      // Developer Console, https://console.developers.google.com
+      var CLIENT_ID = '704967068556-hbc0ud09j3hp3ednnamcn4krgo9ofjod.apps.googleusercontent.com';
+
+      var SCOPES = [ "https://www.googleapis.com/auth/drive.file" ];
+      // , 'https://www.googleapis.com/auth/drive.metadata.readonly'
+       //"https://www.googleapis.com/auth/drive"
+       // https://www.googleapis.com/auth/drive.appdata
+       //'https://www.googleapis.com/auth/drive.appfolder'
+
+      /**
+       * Check if current user has authorized this application.
+       */
+      function checkAuth() {
+        gapi.auth.authorize(
+          {
+            'client_id': CLIENT_ID,
+            'scope': SCOPES.join(' '),
+            'immediate': true
+          }, handleAuthResult);
+      }
+
+      /**
+       * Handle response from authorization server.
+       *
+       * @param {Object} authResult Authorization result.
+       */
+      function handleAuthResult(authResult) {
+        var authorizeDiv = document.getElementById('authorize-div');
+        if (authResult && !authResult.error) {
+          // Hide auth UI, then load client library.
+          authorizeDiv.style.display = 'none';
+          loadDriveApi();
+        } else {
+          // Show auth UI, allowing the user to initiate authorization by
+          // clicking authorize button.
+          authorizeDiv.style.display = 'inline';
+        }
+      }
+
+      /**
+       * Initiate auth flow in response to user clicking authorize button.
+       *
+       * @param {Event} event Button click event.
+       */
+      function handleAuthClick(event) {
+        gapi.auth.authorize(
+          {client_id: CLIENT_ID, scope: SCOPES, immediate: false},
+          handleAuthResult);
+        return false;
+      }
+
+      /**
+       * Load Drive API client library.
+       */
+      function loadDriveApi() {
+        gapi.client.load('drive', 'v3', listFiles);
+      }
+
+      /**
+       * Print files.
+       */
+       //
+      function listFiles() {
+        //insertFile("autest.txt", "application/json", "{a: 1, b: 2}", function() { console.log("DONE"); });
+
+        gapi.client.drive.files
+          .get({ fileId: "0B9xR_fDRpdVecHh0UWhFZmNVRms", alt: 'media' })
+          .then(function (response) {
+            console.log(response);
+          });
+
+        var request = gapi.client.drive.files.list({
+            //'spaces': "appDataFolder"
+            //'pageSize': 100,
+            //'fields': "nextPageToken, files(id, name)"
+          });
+
+          request.execute(function(resp) {
+            appendPre('Files:');
+            var files = resp.files;
+            if (files && files.length > 0) {
+              for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                appendPre(file.name + ' (' + file.id + ')');
+              }
+            } else {
+              appendPre('No files found.');
+            }
+          });
+      }
+
+      /**
+       * Append a pre element to the body containing the given message
+       * as its text node.
+       *
+       * @param {string} message Text to be placed in pre element.
+       */
+      function appendPre(message) {
+        var pre = document.getElementById('output');
+        var textContent = document.createTextNode(message + '\n');
+        pre.appendChild(textContent);
+      }
+
+    </script>
+    <script src="https://apis.google.com/js/client.js?onload=checkAuth">
+    </script>
+  </head>
+  <body>
+    <div id="authorize-div" style="display: none">
+      <span>Authorize access to Drive API</span>
+      <!--Button for the user to click to initiate auth sequence -->
+      <button id="authorize-button" onclick="handleAuthClick(event)">
+        Authorize
+      </button>
+    </div>
+    <pre id="output"></pre>
+  </body>
+</html>
