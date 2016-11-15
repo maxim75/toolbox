@@ -170,6 +170,11 @@
 			<button data-bind="click: downloadDocument">Download document</button>
 			<button data-bind="click: onDownloadClick">Download dictionary</button>
 		</div>
+
+		<div>
+			<button data-bind="visible: !gdrive.isAuthenticated(), click: onGoogleAuthenticateClick">Google login</button>
+			Auth: <span data-bind="text: gdrive.isAuthenticated"></span>
+		</div>
 	</body>
 
  	<!-- Local -->
@@ -186,6 +191,7 @@
  	<script src="ltrainer/sentence.js"></script>
  	<script src="ltrainer/punctuation_mark.js"></script>
  	<script src="ltrainer/document.js"></script>
+ 	<script src="ltrainer/gdrive.js"></script>
 
 	<script>
 		(function() {

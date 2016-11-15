@@ -228,6 +228,11 @@
 				self.document = new ltrainer.Document();
 				self.stats = ko.observableArray();
 				self.translations = ko.observableArray();
+				self.gdrive = new ltrainer.gdrive();
+
+				self.onGoogleAuthenticateClick = function() {
+					self.gdrive.authenticateUser();
+				};
 
 				self.getDodcumentAsString = function() {
 					return JSON.stringify(self.document.getValue());
