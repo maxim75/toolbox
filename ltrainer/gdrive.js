@@ -42,6 +42,12 @@
 
 		//https://developers.google.com/drive/v3/reference/files/update
 
+		var utf8_to_b64 = function(str) {
+			return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+				return String.fromCharCode('0x' + p1);
+			}));
+		};
+
 		self.createFile = function(fileName, contentType, contents) {
 			var dfd = new $.Deferred();
 
@@ -55,7 +61,7 @@
 				'title': fileName
 			};
 
-			var base64Data = btoa(contents);
+			var base64Data = utf8_to_b64(contents);
 			var multipartRequestBody =
 			delimiter +
 			'Content-Type: application/json\r\n\r\n' +
@@ -100,7 +106,7 @@
 				
 			};
 
-			var base64Data = btoa(contents);
+			var base64Data = utf8_to_b64(contents);
 			var multipartRequestBody =
 			
 			delimiter +
@@ -128,23 +134,6 @@
 
 			return dfd;
 
-		};
-
-		self.updateFileZZZ = function() {
-			var requestParams = {
-				"fileId": "0B9xR_fDRpdVecUV2SlRleHVXbnc",
-				'path': '/upload/drive/v2/files/' + "0B9xR_fDRpdVecUV2SlRleHVXbnc",
-				'method': 'PATCH',
-				'params': {'uploadType': 'media','mimeType': "text/plain"},
-				'body': "ZZZZ"
-			};
-
-			console.log("requestParams", requestParams);
-
-			var request = gapi.client.request(requestParams);
-
-
-			request.execute(function(x) { console.log(x); });
 		};
 
 		self.getFile = function(id) {

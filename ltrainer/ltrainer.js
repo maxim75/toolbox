@@ -216,6 +216,7 @@
 				self.dict = window.dict;
 				self.dictWord = ko.observable();
 				self.note = ko.observable();
+				self.googleDriveFileId = ko.observable();
 
 				self.storedDocument = new ltrainer.StoredValue("storedDocument", null); 
 
@@ -237,6 +238,8 @@
 				self.onFileClick = function(file) {
 					self.gdrive.getFile(file.id).done(function(response) {
 						console.log("FFFF", response.body);
+						self.document.load(JSON.parse(response.body));
+						self.googleDriveFileId(file.id);
 					});
 				};
 
@@ -250,18 +253,30 @@
 					}
 				});
 
-				
-
-				self.getDodcumentAsString = function() {
+				self.getDocumentAsString = function() {
 					return JSON.stringify(self.document.getValue());
 				};
 
 				self.saveDocument = function() {
-					self.storedDocument(self.getDodcumentAsString());
+					var docContents = self.getDocumentAsString();
+					self.storedDocument(docContents);
+
+					if(self.googleDriveFileId())
+					{
+						console.log("update file");
+						self.gdrive.updateFile(self.googleDriveFileId(), "application/json", docContents);
+					}
+					else
+					{
+						self.gdrive.createFile("ltrainer_document.json", "application/json", docContents).done(function(x) {
+							console.log("save", x.id);
+							self.googleDriveFileId(x.id);
+						});
+					}
 				};
 
 				self.downloadDocument = function() {
-					download("ltrainer_document.json", self.getDodcumentAsString());
+					download("ltrainer_document.json", self.getDocumentAsString());
 				};
 
 				self.onTextSubmit = function() {
@@ -272,7 +287,6 @@
 					}).value();
 
 					self.textareaValue("");
-					self.saveDocument();
 				};
 
 				self.stats = ko.computed(function() {
@@ -385,10 +399,10 @@
 					self.dict.delete(str, ltrainer.lang());
 				});
 
-				var storedDocument = self.storedDocument();
-				if(storedDocument) {
-					self.document.load(JSON.parse(storedDocument));
-				};
+				// var storedDocument = self.storedDocument();
+				// if(storedDocument) {
+				// 	self.document.load(JSON.parse(storedDocument));
+				// };
 
 
 				//self.document.contents(spSt(ltrainer.Sentence.ParseString(localStorage["contents"] || "")));
