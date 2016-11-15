@@ -23,7 +23,6 @@
 		var funcName = newGuid();
 
 		self.handleAuthResult = function(authResult) {
-			console.log("AAAA", arguments);
 			self.isAuthenticated(authResult && !authResult.error);
 		};
 
@@ -35,6 +34,153 @@
 			self.authorize(false, self.handleAuthResult);
 		};
 
+		self.driveApiLoad = function() {
+			var dfd = new $.Deferred();
+			gapi.client.load('drive', 'v3', function() { dfd.resolve(); });
+			return dfd;
+		};
+
+		//https://developers.google.com/drive/v3/reference/files/update
+
+		self.createFile = function(fileName, contentType, contents) {
+			var dfd = new $.Deferred();
+
+			const boundary = '-------314159265358979323846';
+			const delimiter = "\r\n--" + boundary + "\r\n";
+			const close_delim = "\r\n--" + boundary + "--";
+
+			var contentType = contentType || 'application/octet-stream';
+
+			var metadata = {
+				'title': fileName
+			};
+
+			var base64Data = btoa(contents);
+			var multipartRequestBody =
+			delimiter +
+			'Content-Type: application/json\r\n\r\n' +
+			JSON.stringify(metadata) +
+			delimiter +
+			'Content-Type: ' + contentType + '\r\n' +
+			'Content-Transfer-Encoding: base64\r\n' +
+			'\r\n' +
+			base64Data +
+			close_delim;
+
+			var requestParams = {
+			'path': '/upload/drive/v2/files',
+			'method': 'POST',
+			'params': {'uploadType': 'multipart'},
+			'headers': {
+			'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
+			},
+			'body': multipartRequestBody};
+
+			console.log("requestParams", requestParams);
+
+			var request = gapi.client.request(requestParams);
+
+
+			request.execute(function(x) { dfd.resolve(x); });
+
+			return dfd;
+
+		};
+
+		self.updateFile = function(fileId, contentType, contents) {
+			var dfd = new $.Deferred();
+
+			const boundary = '-------314159265358979323846';
+			const delimiter = "\r\n--" + boundary + "\r\n";
+			const close_delim = "\r\n--" + boundary + "--";
+
+			var contentType = contentType || 'application/octet-stream';
+
+			var metadata = {
+				
+			};
+
+			var base64Data = btoa(contents);
+			var multipartRequestBody =
+			
+			delimiter +
+			'Content-Type: ' + contentType + '\r\n' +
+			'Content-Transfer-Encoding: base64\r\n' +
+			'\r\n' +
+			base64Data +
+			close_delim;
+
+			var requestParams = {
+			'path': '/upload/drive/v2/files/' + "0B9xR_fDRpdVecUV2SlRleHVXbnc",
+			'method': 'PUT',
+			'params': {'uploadType': 'media'},
+			'headers': {
+			'Content-Type': contentType + '; boundary="' + boundary + '"'
+			},
+			'body': contents};
+
+			console.log("requestParams", requestParams);
+
+			var request = gapi.client.request(requestParams);
+
+
+			request.execute(function(x) { dfd.resolve(x); });
+
+			return dfd;
+
+		};
+
+		self.updateFileZZZ = function() {
+			var requestParams = {
+				"fileId": "0B9xR_fDRpdVecUV2SlRleHVXbnc",
+				'path': '/upload/drive/v2/files/' + "0B9xR_fDRpdVecUV2SlRleHVXbnc",
+				'method': 'PATCH',
+				'params': {'uploadType': 'media','mimeType': "text/plain"},
+				'body': "ZZZZ"
+			};
+
+			console.log("requestParams", requestParams);
+
+			var request = gapi.client.request(requestParams);
+
+
+			request.execute(function(x) { console.log(x); });
+		};
+
+		self.getFile = function(id) {
+			var dfd = new $.Deferred();
+
+			self.driveApiLoad().done(function() {
+				gapi.client.drive.files.get({ fileId: id, alt: 'media' })
+				.then(function (response) {
+					dfd.resolve(response);
+				});
+			});
+
+        	return dfd;
+		};
+
+		self.getFileList = function() {
+			var dfd = new $.Deferred();
+
+			self.driveApiLoad().done(function() {
+
+				var request = gapi.client.drive.files.list({});
+
+				request.execute(function(response) {
+					var files = _(response.files)
+						.map(function(x) { 
+							return { id: x.id, name: x.name, mimeType: x.mimeType, kind: x.kind } 
+						})
+						.value();
+					dfd.resolve(files);
+				});
+				
+			});
+
+			return dfd;
+		};
+
 		window[funcName] = function() {
 			self.authorize(true, self.handleAuthResult);
 		};
@@ -43,3 +189,7 @@
 	};
 
 })();
+
+
+// https://content.googleapis.com/drive/v3/files/0B9xR_fDRpdVeMlFsT18ySEtxVDg?uploadType=media&body=!!!!!!!!!!!!!!!!!!&alt=json
+// https://content.googleapis.com/upload/drive/v3/files/0B9xR_fDRpdVeMlFsT18ySEtxVDg?uploadType=media&body=!!!!!!!!!!!!!!!!!!&alt=json

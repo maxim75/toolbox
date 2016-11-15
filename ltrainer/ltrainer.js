@@ -234,6 +234,24 @@
 					self.gdrive.authenticateUser();
 				};
 
+				self.onFileClick = function(file) {
+					self.gdrive.getFile(file.id).done(function(response) {
+						console.log("FFFF", response.body);
+					});
+				};
+
+				self.fileList = ko.observableArray();
+
+				self.gdrive.isAuthenticated.subscribe(function() {
+					if(self.gdrive.isAuthenticated()) {
+						self.gdrive.getFileList().done(function(response) {
+							self.fileList(response);
+						});
+					}
+				});
+
+				
+
 				self.getDodcumentAsString = function() {
 					return JSON.stringify(self.document.getValue());
 				};
@@ -356,8 +374,6 @@
 					e.preventDefault();
 				};
 
-
-
 				pubsub.subscribe("word-click", function(str) {
 					self.dictWord(str);
 					var dictWord = self.dict.lookup(str, ltrainer.lang());
@@ -376,9 +392,6 @@
 
 
 				//self.document.contents(spSt(ltrainer.Sentence.ParseString(localStorage["contents"] || "")));
-
-				
-				
 			};
 
 		var lang = function(str, lang) {

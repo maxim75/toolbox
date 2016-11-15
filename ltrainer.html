@@ -175,6 +175,18 @@
 			<button data-bind="visible: !gdrive.isAuthenticated(), click: onGoogleAuthenticateClick">Google login</button>
 			Auth: <span data-bind="text: gdrive.isAuthenticated"></span>
 		</div>
+
+		<table class="table">
+			<tbody data-bind="foreach: fileList">
+				<tr>
+					<td>
+						<a href="#" data-bind="text: name, click: $parent.onFileClick, attr: { 'data-id': id }"></a>
+					</td>
+					<td data-bind="text: id"></td>
+					<td data-bind="text: mimeType"></td>
+				</tr>
+			</tbody>
+		</table>
 	</body>
 
  	<!-- Local -->
