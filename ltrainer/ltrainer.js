@@ -198,7 +198,7 @@
 			};	
 
 			window.dict = new Dict();
-			window.dict.loadFromLocalStorage();
+			//window.dict.loadFromLocalStorage();
 
 			var download = function (filename, text) {
 				var element = document.createElement('a');
@@ -220,7 +220,7 @@
 
 				self.storedDocument = new ltrainer.StoredValue("storedDocument", null); 
 
-				self.langList = [ "de", "pl", "ru", "en" ];
+				self.langList = [ "cz", "de", "pl", "ru", "en", "uk" ];
 
 				self.dictFilter = ko.observable("");
 
@@ -240,6 +240,13 @@
 						console.log("FFFF", response.body);
 						self.document.load(JSON.parse(response.body));
 						self.googleDriveFileId(file.id);
+					});
+				};
+
+				self.onDictFileClick = function(file) {
+					self.gdrive.getFile(file.id).done(function(response) {
+						console.log("FFFF", response.body);
+						self.dict.loadFromString(response.body);
 					});
 				};
 
@@ -341,8 +348,6 @@
 					fileReader.onload = function(e) { 		  		
 						var fileContents = e.target.result;
 
-						console.log("HERE");
-
 						try {
 
 							var jsonDoc = JSON.parse(fileContents);
@@ -351,9 +356,6 @@
 						catch(err) {
 							self.dict.loadFromString(fileContents);
 						}
-						
-
-						
 					};
 
 					fileReader.readAsText(e.target.files[0]);

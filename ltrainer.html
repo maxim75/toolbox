@@ -193,6 +193,9 @@
 					</td>
 					<td data-bind="text: id"></td>
 					<td data-bind="text: mimeType"></td>
+					<td>
+						<a href="#" data-bind="text: name, click: $parent.onDictFileClick, attr: { 'data-id': id }">Dict</a>
+					</td>
 				</tr>
 			</tbody>
 		</table>

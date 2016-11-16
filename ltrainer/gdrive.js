@@ -159,6 +159,7 @@
 				request.execute(function(response) {
 					var files = _(response.files)
 						.map(function(x) { 
+							//console.log(x);
 							return { id: x.id, name: x.name, mimeType: x.mimeType, kind: x.kind } 
 						})
 						.value();
