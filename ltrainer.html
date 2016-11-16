@@ -61,6 +61,11 @@
 			</div>
 		</div>
 
+		<form class="noprint" action="" data-bind="submit: onTextSubmit">
+			<textarea data-bind="value: textareaValue" style="width: 100%"></textarea>
+			<button type="submit">Add</button>
+		</form>
+
 		<table class="table">
 			<tbody data-bind="foreach: stats">
 				<tr>
@@ -155,20 +160,24 @@
 			<input type="text" data-bind="value: ltrainer.googleApiKey">
 		</div>
 
-		<form class="noprint" action="" data-bind="submit: onTextSubmit">
-			<textarea data-bind="value: textareaValue" style="width: 100%"></textarea>
-			<button type="submit">Add</button>
-		</form>
+		
 
 		<div class="noprint">
 			<input type="file" data-bind="event: { change: onFileInputChange }" />
 		</div>
 
+		<h3>Document</h3>
 		<div>
 			<button data-bind="click: clearDocument">Clear</button>
 			<button data-bind="click: saveDocument">Save</button>
 			<button data-bind="click: downloadDocument">Download document</button>
+			
+		</div>
+
+		<h3>Dictionary</h3>
+		<div>
 			<button data-bind="click: onDownloadClick">Download dictionary</button>
+			<button data-bind="click: onSaveDictToGDrive">Save to GDrive</button>
 		</div>
 
 		<div>

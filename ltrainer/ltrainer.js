@@ -388,6 +388,12 @@
 					e.preventDefault();
 				};
 
+				self.onSaveDictToGDrive = function() {
+					self.gdrive.createFile("ltrainer_dict.txt", "text/plain", self.dict.toString()).done(function(x) {
+						console.log("ltrainer_dict save", x.id);
+					});
+				};
+
 				pubsub.subscribe("word-click", function(str) {
 					self.dictWord(str);
 					var dictWord = self.dict.lookup(str, ltrainer.lang());
