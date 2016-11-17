@@ -82,8 +82,6 @@
 			},
 			'body': multipartRequestBody};
 
-			console.log("requestParams", requestParams);
-
 			var request = gapi.client.request(requestParams);
 
 
@@ -117,7 +115,7 @@
 			close_delim;
 
 			var requestParams = {
-			'path': '/upload/drive/v2/files/' + "0B9xR_fDRpdVecUV2SlRleHVXbnc",
+			'path': '/upload/drive/v2/files/' + fileId,
 			'method': 'PUT',
 			'params': {'uploadType': 'media'},
 			'headers': {
@@ -125,10 +123,7 @@
 			},
 			'body': contents};
 
-			console.log("requestParams", requestParams);
-
 			var request = gapi.client.request(requestParams);
-
 
 			request.execute(function(x) { dfd.resolve(x); });
 

@@ -13,15 +13,42 @@
 	</head>
  
 	<body>
-
 		<div>
-			<span data-bind="text: ltrainer.lang"></span>
 			<select data-bind="options: langList, value: ltrainer.lang"></select>
 		</div>
 		<div>
-			<span data-bind="text: ltrainer.targetLang"></span>
+			<span ></span>
 			<select data-bind="options: langList, value: ltrainer.targetLang"></select>
 		</div>
+
+		<table>
+			<tbody>
+				<tr>
+					<td>Document</td>
+					<td >	
+						<div data-bind="text: googleDriveFileName">
+						</div>
+						<div data-bind="text: googleDriveFileId">
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>Dictionary</td>
+					<td>
+						<div data-bind="text: googleDriveDictFileName"></div>
+						<div data-bind="text: googleDriveDictFileId"></div>
+					</td>
+				</tr>
+				<tr>
+					<td>Source</td>
+					<td data-bind="text: ltrainer.lang"></td>
+				</tr>
+				<tr>
+					<td>Target</td>
+					<td data-bind="text: ltrainer.targetLang"></td>
+				</tr>
+			</tbody>
+		</table>
 
 		<a href="#dictionary">dictionary</a>
 

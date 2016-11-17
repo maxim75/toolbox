@@ -39,8 +39,6 @@
 			window.glosbeCall = function(sourceLang, targetLang, str) {
 				var dfd = new $.Deferred();
 
-				console.log("GT", sourceLang, targetLang, str);
-
 				var url = "https://crossorigin.me/https://glosbe.com/gapi/translate?" + $.param({
 					from: sourceLang,
 					dest: targetLang,
@@ -216,7 +214,11 @@
 				self.dict = window.dict;
 				self.dictWord = ko.observable();
 				self.note = ko.observable();
+
 				self.googleDriveFileId = ko.observable();
+				self.googleDriveFileName = ko.observable();
+				self.googleDriveDictFileId = ko.observable();
+				self.googleDriveDictFileName = ko.observable();
 
 				self.storedDocument = new ltrainer.StoredValue("storedDocument", null); 
 
@@ -237,16 +239,17 @@
 
 				self.onFileClick = function(file) {
 					self.gdrive.getFile(file.id).done(function(response) {
-						console.log("FFFF", response.body);
 						self.document.load(JSON.parse(response.body));
 						self.googleDriveFileId(file.id);
+						self.googleDriveFileName(file.name);
 					});
 				};
 
 				self.onDictFileClick = function(file) {
 					self.gdrive.getFile(file.id).done(function(response) {
-						console.log("FFFF", response.body);
 						self.dict.loadFromString(response.body);
+						self.googleDriveDictFileId(file.id);
+						self.googleDriveDictFileName(file.name);
 					});
 				};
 
@@ -270,14 +273,13 @@
 
 					if(self.googleDriveFileId())
 					{
-						console.log("update file");
 						self.gdrive.updateFile(self.googleDriveFileId(), "application/json", docContents);
 					}
 					else
 					{
 						self.gdrive.createFile("ltrainer_document.json", "application/json", docContents).done(function(x) {
-							console.log("save", x.id);
 							self.googleDriveFileId(x.id);
+							self.googleDriveFileName(x.name);
 						});
 					}
 				};
@@ -391,9 +393,19 @@
 				};
 
 				self.onSaveDictToGDrive = function() {
-					self.gdrive.createFile("ltrainer_dict.txt", "text/plain", self.dict.toString()).done(function(x) {
-						console.log("ltrainer_dict save", x.id);
-					});
+					var dictString = self.dict.toString();
+
+					if(self.googleDriveDictFileId())
+					{
+						self.gdrive.updateFile(self.googleDriveDictFileId(), "text/plain", dictString);
+					}
+					else
+					{
+						self.gdrive.createFile("ltrainer_dict.txt", "text/plain", dictString).done(function(x) {
+							self.googleDriveDictFileId(x.id);
+							self.googleDriveDictFileName(x.name);
+						});
+					}
 				};
 
 				pubsub.subscribe("word-click", function(str) {
