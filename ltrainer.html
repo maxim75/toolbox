@@ -58,6 +58,10 @@
 					<span class="st-text" data-bind="foreach: items">
 						<span data-bind="attr: { class: 'part ' + className(), title: note  }, event: { click: onClick }" }">
 							<span class="note-bottom" data-bind="text: note"></span>
+							
+							<span class="note-top">
+								<span data-bind="style: {color: freqColor }, text: '■'">####</span>
+							</span>
 							<span class="text" data-bind="text: str"></span>
 						</span> 
 					</span>
@@ -235,6 +239,7 @@
 	<script src="jslib/bootstrap.min.js"></script>
 	<script src="jslib/pubsub.js"></script>
 	<script src="jslib/ramda.min.js"></script>
+	<script src="jslib/d3.min.js"></script>
  	<!-- End local -->
 
  	<script src="ltrainer/ltrainer.js"></script>

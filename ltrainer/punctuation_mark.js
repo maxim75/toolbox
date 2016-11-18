@@ -15,6 +15,10 @@
 		self.note = ko.computed(function() {
 			return null;
 		});
+
+		self.freqColor = ko.computed(function() {
+			return "#FFFFFF";
+		});
 	};
 
 	ltrainer.PMark.prototype.getValue = function() {

@@ -18,6 +18,8 @@
 
 			var ltrainer = window.ltrainer = window.ltrainer || {};
 
+
+
 			ltrainer.StoredValue = function(key, defaultValue) {
 				var observable = ko.observable();
 				return new ko.computed({ 
@@ -442,4 +444,46 @@
 
 		window.spSt = spSt;
 		window.lang = lang;
+
+		ltrainer.getFreq = function() {
+			var self = this;
+
+			self.freqDict = {};
+			self.pubsub = pubsub.newInstance();
+			self.isInitialized = ko.observable(false);
+
+			self.lookup = function(str) {
+				var dfd = new $.Deferred();
+				
+				if(self.isInitialized())
+					dfd.resolve(self.freqDict[str]);
+
+				self.isInitialized.subscribe(function() {
+					dfd.resolve(self.freqDict[str]);
+				});
+
+				return dfd;
+			};
+
+
+			$.ajax({ url: "ltrainer/freq_de.txt" }).done(function(x) {
+				var lines = x.split("\n");
+				
+
+				lines.forEach(function(line, idx) {
+					//console.log(line);
+					var matches = /^(\d+) \[\[(.+)\]\]/.exec(line);
+					if(matches) {
+						//console.log(matches[1], matches[2]);
+						self.freqDict[matches[2]] = [parseInt(matches[1]), idx];
+					}
+				});
+
+				self.isInitialized(true);
+			});
+
+
+		};
+
+		ltrainer.freq = new ltrainer.getFreq();
 })();
