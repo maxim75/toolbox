@@ -19,6 +19,10 @@
 		self.freqColor = ko.computed(function() {
 			return "#FFFFFF";
 		});
+
+		self.freqIdx = ko.computed(function() {
+			return null;
+		});
 	};
 
 	ltrainer.PMark.prototype.getValue = function() {

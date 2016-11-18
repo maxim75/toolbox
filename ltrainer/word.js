@@ -10,8 +10,6 @@
 	        .domain([min+1*d,min+2*d,min+3*d,min+4*d,min+5*d,min+6*d,min+7*d]);
 	};
 
-	console.log("ZZZZ", palette(0, 30000));
-
 	ltrainer.Word = function(str) { 
 		var self = this;
 
@@ -28,7 +26,7 @@
 		});
 
 		self.freqColor = ko.computed(function() {
-			return palette(0, 30000)(30000-self.freqIdx());
+			return palette(-10, 0)(-Math.log(self.freqIdx()));
 		});
 
 		ltrainer.freq.lookup(self.str).done(function(x) { x ? self.freqIdx(x[1]) : 10000000000 })
