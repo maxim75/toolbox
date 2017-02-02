@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1"> 
+		
+ 		<!-- Local -->
+		<link href="jslib/bootstrap.min.css" rel="stylesheet" type="text/css" />
+		<link rel="stylesheet" href="jslib/font-awesome-4.7.0/css/font-awesome.min.css">
+ 		<!-- End local -->
+
+ 		<link href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAkY+NAP///wDJxL0AtbCqAKGdmQAEBNQAAwMDAIJ/fAAAAP8AendzACsrKgAAAJQAlJGOAF5cWQBXVVIAAiIi8YtyIiAiIiLxi3IiIiIiIiGLIiIiIiIiKWwiIiIiIiIpbCIiIiIiIilsIiIiIiIiKWwiIiIiIiIpbCIiIiIiIilsIiIiIiIiKWwiIi4iIiIpbCIi7j7iLu7e4i5VRKrurd2upVJEqkTd3a1VIjRCJERERCIiAiIiIiIiIiCAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQAA" rel="icon" type="image/x-icon" />
+	</head>
+ 
+	<body>
+	
+	</body>
+
+ 	<!-- Local -->
+	<script src="jslib/jquery-3.1.0.min.js"></script>
+	<script src="jslib/lodash.js"></script>
+	<script src="jslib/knockout-3.4.0.js"></script>
+	<script src="jslib/bootstrap.min.js"></script>
+	<script src="jslib/pubsub.js"></script>
+	<script src="jslib/ramda.min.js"></script>
+	<script src="jslib/d3.min.js"></script>
+ 	<!-- End local -->
+
+ 	<script src="subedit/subedit.js"></script>
+
+	<script>
+		(function() {
+			"use strict";
+			window.viewModel = new subedit.Vm();
+			ko.applyBindings(window.viewModel, $("body")[0]); 
+		})();
+	</script>
+</html>
